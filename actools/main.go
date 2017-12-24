@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/altipla-consulting/collections"
+	"gopkg.in/yaml.v2"
 )
 
 var containers = []string{
@@ -24,6 +27,10 @@ var toolContainers = map[string]string{
 	"gsutil":  "gcloud",
 	"kubectl": "gcloud",
 	"gofmt":   "go",
+}
+
+type glideConfig struct {
+	Package string `yaml:"package"`
 }
 
 func main() {
@@ -78,6 +85,41 @@ func main() {
 		kubectlConfigPath := fmt.Sprintf("%s/.kube", os.Getenv("HOME"))
 		if hasConfig(kubectlConfigPath) {
 			sh = append(sh, "-v", fmt.Sprintf("%s:/.kube", kubectlConfigPath))
+		}
+
+		networkName := fmt.Sprintf("%s_default", filepath.Base(root))
+		hasNetwork, err := dockerNetworkExists(networkName)
+		if err != nil {
+			fmt.Println("cannot check network:", err.Error())
+			os.Exit(3)
+		}
+		if hasNetwork {
+			sh = append(sh, fmt.Sprintf("--network=%s", networkName))
+		}
+
+		if hasConfig("glide.yaml") {
+			f, err := os.Open("glide.yaml")
+			if err != nil {
+				fmt.Println("cannot open glide config:", err.Error())
+				os.Exit(3)
+			}
+
+			content, err := ioutil.ReadAll(f)
+			if err != nil {
+				fmt.Println("cannot read glide config:", err.Error())
+				os.Exit(3)
+			}
+
+			cnf := new(glideConfig)
+			if err := yaml.Unmarshal(content, cnf); err != nil {
+				fmt.Println("cannot decode glide config:", err.Error())
+				os.Exit(3)
+			}
+
+			if cnf.Package != "." && cnf.Package != "" {
+				sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, cnf.Package))
+				sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", cnf.Package))
+			}
 		}
 
 		sh = append(sh, container)
@@ -141,4 +183,21 @@ func hasConfig(path string) bool {
 	}
 
 	return true
+}
+
+func dockerNetworkExists(networkName string) (bool, error) {
+	cmd := exec.Command("docker", "network", "inspect", networkName)
+
+	if err := cmd.Start(); err != nil {
+		return false, err
+	}
+	if err := cmd.Wait(); err != nil {
+		if !cmd.ProcessState.Success() {
+			return false, nil
+		}
+		
+		return false, err
+	}
+
+	return true, nil
 }
