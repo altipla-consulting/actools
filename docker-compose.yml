@@ -15,3 +15,13 @@ services:
     image: eu.gcr.io/altipla-tools/node:latest
     build:
       context: node
+
+  protoc:
+    image: eu.gcr.io/altipla-tools/protoc:latest
+    build:
+      context: protoc
+
+  rambler:
+    image: eu.gcr.io/altipla-tools/rambler:latest
+    build:
+      context: rambler
