@@ -12,6 +12,8 @@ var containers = []string{
 	"glide",
 	"go",
 	"node",
+	"protoc",
+	"rambler",
 }
 
 var toolContainers = map[string]string{
@@ -36,15 +38,38 @@ func main() {
 		os.Exit(3)
 	}
 
-	switch  {
+	switch {
 	case collections.HasString(containers, containerName):
+		sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
+		if sshAuthSock == "" {
+			fmt.Println("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
+		}
+
+		hasGcloudConfig := true
+		gcloudConfigPath := fmt.Sprintf("%s/.config/gcloud", os.Getenv("HOME"))
+		if _, err := os.Stat(gcloudConfigPath); err != nil {
+			if !os.IsNotExist(err) {
+				fmt.Println("cannot stat the gcloud config path:", err.Error)
+				os.Exit(3)
+			}
+
+			hasGcloudConfig = false
+		}
+
 		sh := []string{
 			"run", "--rm",
 			"-it",
 			"--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
 			"-v", fmt.Sprintf("%s:/staging", root),
-			container,
 		}
+		if sshAuthSock != "" {
+			sh = append(sh, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", sshAuthSock))
+			sh = append(sh, "-v", fmt.Sprintf("%s:%s", sshAuthSock, sshAuthSock))
+		}
+		if hasGcloudConfig {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/root/.config/gcloud", gcloudConfigPath))
+		}
+		sh = append(sh, container)
 		sh = append(sh, os.Args[1:]...)
 
 		if err := runCmd("docker", sh...); err != nil {
@@ -55,7 +80,7 @@ func main() {
 	case os.Args[1] == "pull":
 		if err := pullContainers(); err != nil {
 			fmt.Println("error running pull:", err.Error())
-			os.Exit(2)	
+			os.Exit(2)
 		}
 
 	default:
