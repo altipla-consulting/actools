@@ -13,4 +13,3 @@ RUN curl -L -S -o glide.tar.gz https://github.com/Masterminds/glide/releases/dow
 ENV GLIDE_HOME /tmp
 
 WORKDIR /staging
-ENTRYPOINT ["glide"]
