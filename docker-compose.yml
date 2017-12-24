@@ -10,3 +10,8 @@ services:
     image: eu.gcr.io/altipla-tools/go:latest
     build:
       context: go
+
+  node:
+    image: eu.gcr.io/altipla-tools/node:latest
+    build:
+      context: node
