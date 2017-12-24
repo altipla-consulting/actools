@@ -6,7 +6,9 @@ Build & dev container tools.
 
 ### Install
 
-Download the [latest release](https://github.com/altipla-consulting/actools/releases) and put the binary in `~/bin/actools`.
+```shell
+curl https://storage.googleapis.com/altipla-tools-artifacts/actools > ~/bin/actools && chmod +x ~/bin/actools
+```
 
 
 ### Pull all tools locally
