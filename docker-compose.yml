@@ -1,0 +1,7 @@
+
+version: '2'
+services:
+  glide:
+    image: eu.gcr.io/altipla-tools/glide:latest
+    build:
+      context: glide
