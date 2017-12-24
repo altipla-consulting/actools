@@ -23,6 +23,7 @@ var toolContainers = map[string]string{
 	"npm":     "node",
 	"gsutil":  "gcloud",
 	"kubectl": "gcloud",
+	"gofmt":   "go",
 }
 
 func main() {
