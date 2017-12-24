@@ -26,4 +26,4 @@ COPY config /home/local1001/.ssh/config
 
 ENV GLIDE_HOME /tmp
 
-WORKDIR /staging
+WORKDIR /workspace

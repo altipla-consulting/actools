@@ -50,7 +50,7 @@ func main() {
 			"run", "--rm",
 			"-it",
 			"--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
-			"-v", fmt.Sprintf("%s:/staging", root),
+			"-v", fmt.Sprintf("%s:/workspace", root),
 		}
 
 		sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
