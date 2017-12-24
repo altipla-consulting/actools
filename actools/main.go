@@ -19,10 +19,16 @@ func main() {
 		os.Exit(3)
 	}
 	switch os.Args[1] {
-	case "glide":
-		if err := cmdGlide(root, container, os.Args[2:]); err != nil {
+	case "glide", "go":
+		if err := runGeneric(root, container, os.Args[1:]); err != nil {
 			fmt.Println("error running tool:", err.Error())
 			os.Exit(2)
+		}
+
+	case "pull":
+		if err := pullContainers(); err != nil {
+			fmt.Println("error running pull:", err.Error())
+			os.Exit(2)	
 		}
 
 	default:
@@ -47,14 +53,13 @@ func runCmd(name string, args ...string) error {
 	return nil
 }
 
-func cmdGlide(root, container string, args []string) error {
+func runGeneric(root, container string, args []string) error {
 	sh := []string{
 		"run", "--rm",
 		"-it",
 		"--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
 		"-v", fmt.Sprintf("%s:/staging", root),
 		container,
-		"--",
 	}
 	sh = append(sh, args...)
 
@@ -62,5 +67,18 @@ func cmdGlide(root, container string, args []string) error {
 		return err
 	}
 
+	return nil
+}
+
+func pullContainers() error {
+	tools := []string{
+		"glide",
+		"go",
+	}
+	for _, tool := range tools {
+		if err := runCmd("docker", "pull", fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", tool)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
