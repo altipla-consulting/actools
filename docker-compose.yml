@@ -25,3 +25,8 @@ services:
     image: eu.gcr.io/altipla-tools/rambler:latest
     build:
       context: rambler
+
+  gcloud:
+    image: eu.gcr.io/altipla-tools/gcloud:latest
+    build:
+      context: gcloud

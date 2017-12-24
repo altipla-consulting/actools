@@ -14,10 +14,13 @@ var containers = []string{
 	"node",
 	"protoc",
 	"rambler",
+	"gcloud",
 }
 
 var toolContainers = map[string]string{
-	"npm": "node",
+	"npm":     "node",
+	"gsutil":  "gcloud",
+	"kubectl": "gcloud",
 }
 
 func main() {
@@ -30,6 +33,9 @@ func main() {
 	if !ok {
 		containerName = os.Args[1]
 	}
+	if containerName == "debug" {
+		containerName = os.Args[2]
+	}
 	container := fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", containerName)
 
 	root, err := os.Getwd()
@@ -40,37 +46,44 @@ func main() {
 
 	switch {
 	case collections.HasString(containers, containerName):
-		sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
-		if sshAuthSock == "" {
-			fmt.Println("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
-		}
-
-		hasGcloudConfig := true
-		gcloudConfigPath := fmt.Sprintf("%s/.config/gcloud", os.Getenv("HOME"))
-		if _, err := os.Stat(gcloudConfigPath); err != nil {
-			if !os.IsNotExist(err) {
-				fmt.Println("cannot stat the gcloud config path:", err.Error)
-				os.Exit(3)
-			}
-
-			hasGcloudConfig = false
-		}
-
 		sh := []string{
 			"run", "--rm",
 			"-it",
 			"--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
 			"-v", fmt.Sprintf("%s:/staging", root),
 		}
+
+		sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
+		if sshAuthSock == "" {
+			fmt.Println("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
+		}
 		if sshAuthSock != "" {
 			sh = append(sh, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", sshAuthSock))
 			sh = append(sh, "-v", fmt.Sprintf("%s:%s", sshAuthSock, sshAuthSock))
 		}
-		if hasGcloudConfig {
-			sh = append(sh, "-v", fmt.Sprintf("%s:/root/.config/gcloud", gcloudConfigPath))
+
+		gcloudConfigPath := fmt.Sprintf("%s/.config/gcloud", os.Getenv("HOME"))
+		if hasConfig(gcloudConfigPath) {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/.config/gcloud", gcloudConfigPath))
 		}
+
+		gsutilConfigPath := fmt.Sprintf("%s/.gsutil", os.Getenv("HOME"))
+		if hasConfig(gsutilConfigPath) {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/.gsutil", gsutilConfigPath))
+		}
+
+		kubectlConfigPath := fmt.Sprintf("%s/.kube", os.Getenv("HOME"))
+		if hasConfig(kubectlConfigPath) {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/.kube", kubectlConfigPath))
+		}
+
 		sh = append(sh, container)
-		sh = append(sh, os.Args[1:]...)
+
+		if os.Args[1] == "debug" {
+			sh = append(sh, os.Args[3:]...)
+		} else {
+			sh = append(sh, os.Args[1:]...)
+		}
 
 		if err := runCmd("docker", sh...); err != nil {
 			fmt.Println("error running tool:", err.Error())
@@ -112,4 +125,17 @@ func pullContainers() error {
 		}
 	}
 	return nil
+}
+
+func hasConfig(path string) bool {
+	if _, err := os.Stat(path); err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Printf("cannot stat config path <%s>: %s\n", path, err.Error())
+			os.Exit(3)
+		}
+
+		return false
+	}
+
+	return true
 }
