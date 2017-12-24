@@ -30,3 +30,13 @@ services:
     image: eu.gcr.io/altipla-tools/gcloud:latest
     build:
       context: gcloud
+
+  gulp:
+    image: eu.gcr.io/altipla-tools/gulp:latest
+    build:
+      context: gulp
+
+  sass-lint:
+    image: eu.gcr.io/altipla-tools/sass-lint:latest
+    build:
+      context: sass-lint

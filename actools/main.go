@@ -9,12 +9,14 @@ import (
 )
 
 var containers = []string{
+	"gcloud",
 	"glide",
 	"go",
+	"gulp",
 	"node",
 	"protoc",
 	"rambler",
-	"gcloud",
+	"sass-lint",
 }
 
 var toolContainers = map[string]string{
