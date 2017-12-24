@@ -5,3 +5,8 @@ services:
     image: eu.gcr.io/altipla-tools/glide:latest
     build:
       context: glide
+
+  go:
+    image: eu.gcr.io/altipla-tools/go:latest
+    build:
+      context: go
