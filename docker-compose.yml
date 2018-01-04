@@ -40,3 +40,13 @@ services:
     image: eu.gcr.io/altipla-tools/sass-lint:latest
     build:
       context: containers/sass-lint
+
+  phpmyadmin:
+    image: eu.gcr.io/altipla-tools/phpmyadmin:latest
+    build:
+      context: containers/phpmyadmin
+
+  mysql:
+    image: eu.gcr.io/altipla-tools/mysql:latest
+    build:
+      context: containers/mysql
