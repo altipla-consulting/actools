@@ -4,39 +4,39 @@ services:
   glide:
     image: eu.gcr.io/altipla-tools/glide:latest
     build:
-      context: glide
+      context: containers/glide
 
   go:
     image: eu.gcr.io/altipla-tools/go:latest
     build:
-      context: go
+      context: containers/go
 
   node:
     image: eu.gcr.io/altipla-tools/node:latest
     build:
-      context: node
+      context: containers/node
 
   protoc:
     image: eu.gcr.io/altipla-tools/protoc:latest
     build:
-      context: protoc
+      context: containers/protoc
 
   rambler:
     image: eu.gcr.io/altipla-tools/rambler:latest
     build:
-      context: rambler
+      context: containers/rambler
 
   gcloud:
     image: eu.gcr.io/altipla-tools/gcloud:latest
     build:
-      context: gcloud
+      context: containers/gcloud
 
   gulp:
     image: eu.gcr.io/altipla-tools/gulp:latest
     build:
-      context: gulp
+      context: containers/gulp
 
   sass-lint:
     image: eu.gcr.io/altipla-tools/sass-lint:latest
     build:
-      context: sass-lint
+      context: containers/sass-lint
