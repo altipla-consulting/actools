@@ -84,6 +84,8 @@ func runContainer(container string, args ...string) error {
 		sh = append(sh, fmt.Sprintf("--network=%s", networkName))
 	}
 
+	var project string
+
 	if hasConfig("glide.yaml") {
 		f, err := os.Open("glide.yaml")
 		if err != nil {
@@ -95,15 +97,27 @@ func runContainer(container string, args ...string) error {
 			return errors.Trace(err)
 		}
 
-		cnf := new(glideConfig)
-		if err := yaml.Unmarshal(content, cnf); err != nil {
+		glideCnf := new(glideConfig)
+		if err := yaml.Unmarshal(content, glideCnf); err != nil {
 			return errors.Trace(err)
 		}
 
-		if cnf.Package != "." && cnf.Package != "" {
-			sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, cnf.Package))
-			sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", cnf.Package))
+		if glideCnf.Package != "." && glideCnf.Package != "" {
+			project = glideCnf.Package
 		}
+	}
+
+	cnf, err := ReadConfig()
+	if err != nil {
+	  return errors.Trace(err)
+	}
+	if cnf != nil {
+		project = cnf.Project
+	}
+
+	if project != "" {
+		sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, project))
+		sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", project))
 	}
 
 	sh = append(sh, container)
