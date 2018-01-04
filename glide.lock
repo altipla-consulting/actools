@@ -1,0 +1,27 @@
+hash: 8e3ab49a0190f14f27c689a351732d4936e7ade3b4fb51040319e13ee271ff81
+updated: 2018-01-04T00:44:12.29622174+01:00
+imports:
+- name: github.com/altipla-consulting/collections
+  version: 94f2318022dc8ae7a2cf6ca3f6fc23b50f4011bb
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/juju/errors
+  version: c7d06af17c68cd34c835053720b21f6549d9b0ee
+- name: github.com/sirupsen/logrus
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+- name: github.com/spf13/cobra
+  version: b95ab734e27d33e0d8fbabf71ca990568d4e2020
+- name: github.com/spf13/pflag
+  version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
+- name: golang.org/x/crypto
+  version: 0fcca4842a8d74bfddc2c96a073bd2a4d2a7a2e8
+  subpackages:
+  - ssh/terminal
+- name: golang.org/x/sys
+  version: 28a7276518d399b9634904daad79e18b44d481bc
+  subpackages:
+  - unix
+  - windows
+- name: gopkg.in/yaml.v2
+  version: c95af922eae69f190717a0b7148960af8c55a072
+devImports: []
