@@ -26,7 +26,7 @@ func createRunCommand(container string) {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return errors.Trace(runContainer(container, args...))
+			return errors.Trace(runContainer(container, nil, args...))
 		},
 	}
 	CmdRun.AddCommand(CmdContainer)

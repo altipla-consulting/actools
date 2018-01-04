@@ -36,7 +36,21 @@ type glideConfig struct {
 	Package string `yaml:"package"`
 }
 
-func runContainer(container string, args ...string) error {
+type containerConfig struct {
+	ShareWorkspace    bool
+	LocalUser         bool
+	ShareSSHSocket    bool
+	ShareGcloudConfig bool
+	ConfigureGopath   bool
+	DockerArgs        []string
+	Persistent        bool
+}
+
+func runContainer(container string, cnf *containerConfig, args ...string) error {
+	if cnf == nil {
+		cnf = new(containerConfig)
+	}
+
 	container = fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", container)
 
 	root, err := os.Getwd()
@@ -45,34 +59,86 @@ func runContainer(container string, args ...string) error {
 	}
 
 	sh := []string{
-		"run", "--rm",
+		"run",
 		"-it",
-		"--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
-		"-v", fmt.Sprintf("%s:/workspace", root),
 	}
 
-	sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
-	if sshAuthSock == "" {
-		log.Warning("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
-	}
-	if sshAuthSock != "" {
-		sh = append(sh, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", sshAuthSock))
-		sh = append(sh, "-v", fmt.Sprintf("%s:%s", sshAuthSock, sshAuthSock))
+	if !cnf.Persistent {
+		sh = append(sh, "--rm")
 	}
 
-	gcloudConfigPath := fmt.Sprintf("%s/.config/gcloud", os.Getenv("HOME"))
-	if hasConfig(gcloudConfigPath) {
-		sh = append(sh, "-v", fmt.Sprintf("%s:/.config/gcloud", gcloudConfigPath))
+	if cnf.ShareWorkspace {
+		sh = append(sh, "-v", fmt.Sprintf("%s:/workspace", root))
 	}
 
-	gsutilConfigPath := fmt.Sprintf("%s/.gsutil", os.Getenv("HOME"))
-	if hasConfig(gsutilConfigPath) {
-		sh = append(sh, "-v", fmt.Sprintf("%s:/.gsutil", gsutilConfigPath))
+	if cnf.LocalUser {
+		sh = append(sh, "--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()))
 	}
 
-	kubectlConfigPath := fmt.Sprintf("%s/.kube", os.Getenv("HOME"))
-	if hasConfig(kubectlConfigPath) {
-		sh = append(sh, "-v", fmt.Sprintf("%s:/.kube", kubectlConfigPath))
+	if cnf.ShareSSHSocket {
+		sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
+		if sshAuthSock == "" {
+			log.Warning("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
+		}
+		if sshAuthSock != "" {
+			sh = append(sh, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", sshAuthSock))
+			sh = append(sh, "-v", fmt.Sprintf("%s:%s", sshAuthSock, sshAuthSock))
+		}
+	}
+
+	if cnf.ShareGcloudConfig {
+		gcloudConfigPath := fmt.Sprintf("%s/.config/gcloud", os.Getenv("HOME"))
+		if hasConfig(gcloudConfigPath) {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/.config/gcloud", gcloudConfigPath))
+		}
+
+		gsutilConfigPath := fmt.Sprintf("%s/.gsutil", os.Getenv("HOME"))
+		if hasConfig(gsutilConfigPath) {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/.gsutil", gsutilConfigPath))
+		}
+
+		kubectlConfigPath := fmt.Sprintf("%s/.kube", os.Getenv("HOME"))
+		if hasConfig(kubectlConfigPath) {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/.kube", kubectlConfigPath))
+		}
+	}
+
+	if cnf.ConfigureGopath {
+		var project string
+
+		if hasConfig("glide.yaml") {
+			f, err := os.Open("glide.yaml")
+			if err != nil {
+				return errors.Trace(err)
+			}
+
+			content, err := ioutil.ReadAll(f)
+			if err != nil {
+				return errors.Trace(err)
+			}
+
+			glideCnf := new(glideConfig)
+			if err := yaml.Unmarshal(content, glideCnf); err != nil {
+				return errors.Trace(err)
+			}
+
+			if glideCnf.Package != "." && glideCnf.Package != "" {
+				project = glideCnf.Package
+			}
+		}
+
+		cnf, err := ReadConfig()
+		if err != nil {
+			return errors.Trace(err)
+		}
+		if cnf != nil {
+			project = cnf.Project
+		}
+
+		if project != "" {
+			sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, project))
+			sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", project))
+		}
 	}
 
 	networkName := fmt.Sprintf("%s_default", filepath.Base(root))
@@ -84,42 +150,7 @@ func runContainer(container string, args ...string) error {
 		sh = append(sh, fmt.Sprintf("--network=%s", networkName))
 	}
 
-	var project string
-
-	if hasConfig("glide.yaml") {
-		f, err := os.Open("glide.yaml")
-		if err != nil {
-			return errors.Trace(err)
-		}
-
-		content, err := ioutil.ReadAll(f)
-		if err != nil {
-			return errors.Trace(err)
-		}
-
-		glideCnf := new(glideConfig)
-		if err := yaml.Unmarshal(content, glideCnf); err != nil {
-			return errors.Trace(err)
-		}
-
-		if glideCnf.Package != "." && glideCnf.Package != "" {
-			project = glideCnf.Package
-		}
-	}
-
-	cnf, err := ReadConfig()
-	if err != nil {
-	  return errors.Trace(err)
-	}
-	if cnf != nil {
-		project = cnf.Project
-	}
-
-	if project != "" {
-		sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, project))
-		sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", project))
-	}
-
+	sh = append(sh, cnf.DockerArgs...)
 	sh = append(sh, container)
 	sh = append(sh, args...)
 
@@ -146,21 +177,4 @@ func hasConfig(path string) bool {
 	}
 
 	return true
-}
-
-func dockerNetworkExists(networkName string) (bool, error) {
-	cmd := exec.Command("docker", "network", "inspect", networkName)
-
-	if err := cmd.Start(); err != nil {
-		return false, err
-	}
-	if err := cmd.Wait(); err != nil {
-		if !cmd.ProcessState.Success() {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }

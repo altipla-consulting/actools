@@ -8,15 +8,15 @@ import (
 )
 
 func init() {
-	for tool, container := range tools {
-		createToolCommand(tool, container)
+	for tool, toolCnf := range tools {
+		createToolCommand(tool, toolCnf.Container, toolCnf.Cnf)
 	}
 }
 
-func createToolCommand(tool, container string) {
+func createToolCommand(tool, container string, cnf *containerConfig) {
 	run := func(cmd *cobra.Command, args []string) error {
 		containerArgs := append([]string{tool}, args...)
-		return errors.Trace(runContainer(container, containerArgs...))
+		return errors.Trace(runContainer(container, cnf, containerArgs...))
 	}
 
 	var CmdTool = &cobra.Command{
