@@ -7,21 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tools = map[string]string{
-	"gcloud":    "gcloud",
-	"glide":     "glide",
-	"go":        "go",
-	"gulp":      "gulp",
-	"node":      "node",
-	"protoc":    "protoc",
-	"rambler":   "rambler",
-	"sass-lint": "sass-lint",
-	"npm":       "node",
-	"gsutil":    "gcloud",
-	"kubectl":   "gcloud",
-	"gofmt":     "go",
-}
-
 func init() {
 	for tool, container := range tools {
 		createToolCommand(tool, container)

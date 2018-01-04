@@ -7,17 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var containers = []string{
-	"gcloud",
-	"glide",
-	"go",
-	"gulp",
-	"node",
-	"protoc",
-	"rambler",
-	"sass-lint",
-}
-
 func init() {
 	CmdRoot.AddCommand(CmdPull)
 }
