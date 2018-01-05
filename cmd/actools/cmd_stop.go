@@ -22,7 +22,7 @@ var CmdStop = &cobra.Command{
 		if err != nil {
 			return errors.Trace(err)
 		}
-		if cnf == nil || cnf.Services == nil {
+		if cnf == nil {
 			return errors.NotFoundf("actools.yml")
 		}
 
@@ -32,9 +32,15 @@ var CmdStop = &cobra.Command{
 		}
 		root = filepath.Base(root)
 
+		if len(args) == 0 {
+			for tool := range cnf.Tools {
+				args = append(args, tool)
+			}
+		}
+
 		for _, arg := range args {
-			if _, ok := cnf.Services[arg]; !ok {
-				return errors.NotFoundf("service %s", arg)
+			if _, ok := cnf.Tools[arg]; !ok {
+				return errors.NotFoundf("tool %s", arg)
 			}
 		}
 
@@ -46,12 +52,12 @@ var CmdStop = &cobra.Command{
 				return errors.Trace(err)
 			}
 			if !hasContainer {
-				log.WithFields(log.Fields{"service": arg}).Info("service already removed")
+				log.WithFields(log.Fields{"tool": arg}).Info("tool already removed")
 				return nil
 			}
 
-			log.WithFields(log.Fields{"service": arg}).Info("stop service")
-			if err := runInteractive("docker", "stop", name); err != nil {
+			log.WithFields(log.Fields{"tool": arg}).Info("stop tool")
+			if err := runInteractiveDebugOutput("docker", "stop", name); err != nil {
 				return errors.Trace(err)
 			}
 		}

@@ -33,13 +33,8 @@ var CmdRm = &cobra.Command{
 		root = filepath.Base(root)
 
 		for _, arg := range args {
-			service, ok := cnf.Services[arg]
-			if !ok {
-				return errors.NotFoundf("service %s", arg)
-			}
-
-			if !service.Persistent {
-				return errors.NotValidf("service %s is not persistent", arg)
+			if _, ok := cnf.Tools[arg]; !ok {
+				return errors.NotFoundf("tool %s", arg)
 			}
 		}
 
@@ -51,17 +46,17 @@ var CmdRm = &cobra.Command{
 				return errors.Trace(err)
 			}
 			if !hasContainer {
-				log.WithFields(log.Fields{"service": arg}).Info("service already removed")
+				log.WithFields(log.Fields{"tool": arg}).Info("tool already removed")
 				continue
 			}
 
-			log.WithFields(log.Fields{"service": arg}).Info("stop service")
-			if err := runInteractive("docker", "stop", name); err != nil {
+			log.WithFields(log.Fields{"tool": arg}).Info("stop tool")
+			if err := runInteractiveDebugOutput("docker", "stop", name); err != nil {
 				return errors.Trace(err)
 			}
 
-			log.WithFields(log.Fields{"service": arg}).Info("remove service")
-			if err := runInteractive("docker", "rm", name); err != nil {
+			log.WithFields(log.Fields{"tool": arg}).Info("remove tool")
+			if err := runInteractiveDebugOutput("docker", "rm", name); err != nil {
 				return errors.Trace(err)
 			}
 		}

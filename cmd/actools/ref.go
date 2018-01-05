@@ -1,11 +1,14 @@
 package main
 
 var containers = []string{
+	"dev-go",
 	"gcloud",
 	"glide",
 	"go",
 	"gulp",
+	"mysql",
 	"node",
+	"phpmyadmin",
 	"protoc",
 	"rambler",
 	"sass-lint",

@@ -12,14 +12,21 @@ type Config struct {
 	Project string `yaml:"project"`
 
 	Services map[string]*Service `yaml:"services"`
+	Tools    map[string]*Tool    `yaml:"tools"`
 }
 
 type Service struct {
-	Container  string   `yaml:"container"`
-	Deps       []string `yaml:"deps"`
-	Ports      []string `yaml:"ports"`
-	Volumes    []string `yaml:"volumes"`
-	Persistent bool     `yaml:"persistent"`
+	Type    string   `yaml:"type"`
+	Deps    []string `yaml:"deps"`
+	Ports   []string `yaml:"ports"`
+	Workdir string   `yaml:"workdir"`
+}
+
+type Tool struct {
+	Container string   `yaml:"container"`
+	Deps      []string `yaml:"deps"`
+	Ports     []string `yaml:"ports"`
+	Volumes   []string `yaml:"volumes"`
 }
 
 func ReadConfig() (*Config, error) {
