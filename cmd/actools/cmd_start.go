@@ -35,6 +35,17 @@ var CmdStart = &cobra.Command{
 			return errors.Trace(err)
 		}
 
+		networkName := fmt.Sprintf("%s_default", filepath.Base(root))
+		hasNetwork, err := dockerNetworkExists(networkName)
+		if err != nil {
+			return errors.Trace(err)
+		}
+		if !hasNetwork {
+			if err := dockerCreateNetwork(networkName); err != nil {
+				return errors.Trace(err)
+			}
+		}
+
 		start := []string{}
 		foreground := []string{}
 		for _, arg := range args {
@@ -142,7 +153,7 @@ var CmdStart = &cobra.Command{
 }
 
 type PrefixFormatter struct {
-	t *log.TextFormatter
+	t           *log.TextFormatter
 	serviceName string
 }
 
@@ -154,7 +165,7 @@ func (f *PrefixFormatter) Format(entry *log.Entry) ([]byte, error) {
 
 func newPrefixFormatter(serviceName string) *PrefixFormatter {
 	return &PrefixFormatter{
-		t: new(log.TextFormatter),
+		t:           new(log.TextFormatter),
 		serviceName: serviceName,
 	}
 }
