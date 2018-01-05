@@ -184,6 +184,12 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		}
 
 		if project != "" {
+			hostPkg := fmt.Sprintf("/tmp/actools-cache-%s/pkg", filepath.Base(root))
+			sh = append(sh, "-v", fmt.Sprintf("%s:/go/pkg", hostPkg))
+			if err := os.MkdirAll(hostPkg, 0777); err != nil {
+				return errors.Trace(err)
+			}
+
 			sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, project))
 			sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", project))
 		}
