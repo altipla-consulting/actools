@@ -81,9 +81,10 @@ var CmdStart = &cobra.Command{
 			var container string
 			containerArgs := []string{}
 			containerCnf := &containerConfig{
-				Name:       name,
-				Persistent: true,
-				CreateOnly: true,
+				Name:         name,
+				Persistent:   true,
+				CreateOnly:   true,
+				NetworkAlias: []string{arg},
 			}
 
 			service, ok := cnf.Services[arg]

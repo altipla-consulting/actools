@@ -80,6 +80,7 @@ type containerConfig struct {
 	Volumes           []string
 	Name              string
 	CreateOnly        bool
+	NetworkAlias      []string
 }
 
 func runContainer(container string, cnf *containerConfig, args ...string) error {
@@ -116,6 +117,10 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 
 	if cnf.LocalUser {
 		sh = append(sh, "--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()))
+	}
+
+	for _, alias := range cnf.NetworkAlias {
+		sh = append(sh, "--network-alias", alias)
 	}
 
 	if cnf.ShareSSHSocket {
