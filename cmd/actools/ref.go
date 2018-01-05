@@ -115,3 +115,15 @@ var tools = map[string]*toolConfig{
 		},
 	},
 }
+
+var manualRun = map[string]*containerConfig{
+	"go": &containerConfig{
+		ShareWorkspace:  true,
+		LocalUser:       true,
+		ConfigureGopath: true,
+	},
+	"node": &containerConfig{
+		ShareWorkspace: true,
+		LocalUser:      true,
+	},
+}
