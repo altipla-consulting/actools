@@ -19,6 +19,9 @@ type toolConfig struct {
 	Cnf       *containerConfig
 }
 
+// TODO(ernesto): Estas configuraciones son más por contenedor que por herramienta,
+// podemos llevar la lista abajo a manualRun y compartirla con un mejor nombre de
+// variable.
 var tools = map[string]*toolConfig{
 	"gcloud": &toolConfig{
 		Container: "gcloud",
