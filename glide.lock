@@ -1,8 +1,8 @@
-hash: 8e3ab49a0190f14f27c689a351732d4936e7ade3b4fb51040319e13ee271ff81
-updated: 2018-01-04T00:44:12.29622174+01:00
+hash: 3bd6184f50af7585a6b66128e4617993b3e086bb2d0933a7dd6d59d55e04d204
+updated: 2018-01-05T08:38:17.768507826Z
 imports:
 - name: github.com/altipla-consulting/collections
-  version: 94f2318022dc8ae7a2cf6ca3f6fc23b50f4011bb
+  version: 1b3380bd54a3b7d582fbc542c90395cff50a224e
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/juju/errors
@@ -18,10 +18,10 @@ imports:
   subpackages:
   - ssh/terminal
 - name: golang.org/x/sys
-  version: 28a7276518d399b9634904daad79e18b44d481bc
+  version: a3f2cbd54cf5dfe3fbaccf76375fdb12f67654c8
   subpackages:
   - unix
   - windows
 - name: gopkg.in/yaml.v2
-  version: c95af922eae69f190717a0b7148960af8c55a072
-devImports: []
+  version: 0e4404da71227dcc02fb1deee803d93e86d08f72
+testImports: []
