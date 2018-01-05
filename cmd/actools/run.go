@@ -81,6 +81,7 @@ type containerConfig struct {
 	Name              string
 	CreateOnly        bool
 	NetworkAlias      []string
+	NoTTY             bool
 }
 
 func runContainer(container string, cnf *containerConfig, args ...string) error {
@@ -101,7 +102,11 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		sh = append(sh, "run")
 	}
 
-	sh = append(sh, "-it")
+	sh = append(sh, "-i")
+
+	if !cnf.NoTTY {
+		sh = append(sh, "-t")
+	}
 
 	if cnf.Name != "" {
 		sh = append(sh, "--name", cnf.Name)

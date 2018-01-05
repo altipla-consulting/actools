@@ -117,13 +117,22 @@ var tools = map[string]*toolConfig{
 			ConfigureGopath: true,
 		},
 	},
+	"mysql": &toolConfig{
+		Container: "mysql",
+		Cnf: &containerConfig{
+			ShareWorkspace: true,
+			LocalUser:      true,
+			NoTTY:          true,
+		},
+	},
 }
 
 var manualRun = map[string]*containerConfig{
 	"go": &containerConfig{
-		ShareWorkspace:  true,
-		LocalUser:       true,
-		ConfigureGopath: true,
+		ShareWorkspace:    true,
+		LocalUser:         true,
+		ConfigureGopath:   true,
+		ShareGcloudConfig: true,
 	},
 	"node": &containerConfig{
 		ShareWorkspace: true,
