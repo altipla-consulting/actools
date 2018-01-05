@@ -11,6 +11,8 @@ import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
+
+	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
 func runInteractive(name string, args ...string) error {
@@ -183,7 +185,7 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 	}
 
 	networkName := fmt.Sprintf("%s_default", filepath.Base(root))
-	hasNetwork, err := dockerNetworkExists(networkName)
+	hasNetwork, err := docker.NetworkExists(networkName)
 	if err != nil {
 		return errors.Trace(err)
 	}

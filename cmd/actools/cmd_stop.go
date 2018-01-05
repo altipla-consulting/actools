@@ -8,6 +8,8 @@ import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
 func init() {
@@ -47,7 +49,7 @@ var CmdStop = &cobra.Command{
 		for _, arg := range args {
 			name := fmt.Sprintf("%s_%s", root, arg)
 
-			hasContainer, err := dockerContainerExists(name)
+			hasContainer, err := docker.ContainerExists(name)
 			if err != nil {
 				return errors.Trace(err)
 			}

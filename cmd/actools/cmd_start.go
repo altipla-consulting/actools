@@ -12,6 +12,8 @@ import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
 func init() {
@@ -36,12 +38,12 @@ var CmdStart = &cobra.Command{
 		}
 
 		networkName := fmt.Sprintf("%s_default", filepath.Base(root))
-		hasNetwork, err := dockerNetworkExists(networkName)
+		hasNetwork, err := docker.NetworkExists(networkName)
 		if err != nil {
 			return errors.Trace(err)
 		}
 		if !hasNetwork {
-			if err := dockerCreateNetwork(networkName); err != nil {
+			if err := docker.CreateNetwork(networkName); err != nil {
 				return errors.Trace(err)
 			}
 		}
@@ -71,7 +73,7 @@ var CmdStart = &cobra.Command{
 		notifyExit := make(chan struct{})
 		for _, arg := range start {
 			name := fmt.Sprintf("%s_%s", filepath.Base(root), arg)
-			hasContainer, err := dockerContainerExists(name)
+			hasContainer, err := docker.ContainerExists(name)
 			if err != nil {
 				return errors.Trace(err)
 			}
