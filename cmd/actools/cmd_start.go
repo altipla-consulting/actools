@@ -69,6 +69,8 @@ var CmdStart = &cobra.Command{
 			return errors.NotFoundf("service %s", arg)
 		}
 
+		start = collections.UniqueStrings(start)
+
 		wg := new(sync.WaitGroup)
 		notifyExit := make(chan struct{})
 		for _, arg := range start {
