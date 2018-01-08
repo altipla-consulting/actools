@@ -189,13 +189,13 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		}
 
 		if project != "" {
-			hostBin := fmt.Sprintf("/tmp/actools-cache-%s/bin", filepath.Base(root))
+			hostBin := fmt.Sprintf("%s/.actools/cache-%s/bin", os.Getenv("HOME"), filepath.Base(root))
 			sh = append(sh, "-v", fmt.Sprintf("%s:/go/bin", hostBin))
 			if err := os.MkdirAll(hostBin, 0777); err != nil {
 				return errors.Trace(err)
 			}
 
-			hostPkg := fmt.Sprintf("/tmp/actools-cache-%s/pkg", filepath.Base(root))
+			hostPkg := fmt.Sprintf("%s/.actools/cache-%s/pkg", os.Getenv("HOME"), filepath.Base(root))
 			sh = append(sh, "-v", fmt.Sprintf("%s:/go/pkg", hostPkg))
 			if err := os.MkdirAll(hostPkg, 0777); err != nil {
 				return errors.Trace(err)
