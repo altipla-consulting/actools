@@ -120,7 +120,7 @@ var CmdStart = &cobra.Command{
 			log.WithFields(log.Fields{
 				"service": arg,
 				"is-new":  !hasContainer,
-			}).Info("start service")
+			}).Info("Start service")
 
 			if !hasContainer {
 				if err := runContainer(container, containerCnf, containerArgs...); err != nil {
@@ -182,7 +182,7 @@ func RunForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName, co
 
 	logger := log.WithFields(log.Fields{"service": serviceName})
 
-	logger.Debug("run foreground service")
+	logger.Debug("Run foreground service")
 	notifyErr := make(chan error, 1)
 	go func() {
 		cmd := exec.Command("docker", "start", "-a", containerName)
@@ -214,12 +214,12 @@ func RunForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName, co
 
 	select {
 	case err := <-notifyErr:
-		logger.WithFields(log.Fields{"err": err.Error()}).Error("foreground service failed")
+		logger.WithFields(log.Fields{"err": err.Error()}).Error("Foreground service failed")
 
 	case <-notifyExit:
-		logger.Info("kill service")
+		logger.Info("Kill service")
 		if err := runInteractiveDebugOutput("docker", "kill", containerName); err != nil {
-			logger.WithFields(log.Fields{"err": err.Error()}).Error("stop foreground service failed")
+			logger.WithFields(log.Fields{"err": err.Error()}).Error("Stop foreground service failed")
 		}
 	}
 }

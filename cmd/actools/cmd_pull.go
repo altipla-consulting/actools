@@ -16,7 +16,7 @@ var CmdPull = &cobra.Command{
 	Short: "Descarga y actualiza forzosamente las imágenes de los contenedores de herramientas.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		for _, container := range containers {
-			log.WithFields(log.Fields{"container": container}).Info("download container")
+			log.WithFields(log.Fields{"container": container}).Info("Download container")
 			if err := runInteractive("docker", "pull", fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", container)); err != nil {
 				return err
 			}

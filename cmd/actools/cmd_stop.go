@@ -54,11 +54,11 @@ var CmdStop = &cobra.Command{
 				return errors.Trace(err)
 			}
 			if !hasContainer {
-				log.WithFields(log.Fields{"tool": arg}).Info("tool already removed")
+				log.WithFields(log.Fields{"tool": arg}).Info("Tool already removed")
 				return nil
 			}
 
-			log.WithFields(log.Fields{"tool": arg}).Info("stop tool")
+			log.WithFields(log.Fields{"tool": arg}).Info("Stop tool")
 			if err := runInteractiveDebugOutput("docker", "stop", name); err != nil {
 				return errors.Trace(err)
 			}

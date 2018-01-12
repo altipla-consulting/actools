@@ -23,7 +23,7 @@ func runInteractive(name string, args ...string) error {
 
 	log.WithFields(log.Fields{
 		"cmd": append([]string{name}, args...),
-	}).Debug("run interactive command")
+	}).Debug("Run interactive command")
 
 	if err := cmd.Start(); err != nil {
 		return errors.Trace(err)
@@ -53,7 +53,7 @@ func runInteractiveDebugOutput(name string, args ...string) error {
 
 	log.WithFields(log.Fields{
 		"cmd": append([]string{name}, args...),
-	}).Debug("run interactive command")
+	}).Debug("Run interactive command")
 
 	if err := cmd.Start(); err != nil {
 		return errors.Trace(err)
@@ -227,16 +227,16 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 	sh = append(sh, fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", container))
 	sh = append(sh, args...)
 
-	log.WithFields(log.Fields{"sh": sh}).Debug("run docker container")
+	log.WithFields(log.Fields{"sh": sh}).Debug("Run Docker container")
 
 	if cnf.CreateOnly {
 		if err := runInteractiveDebugOutput("docker", sh...); err != nil {
-			log.WithFields(log.Fields{"err": err.Error()}).Error("container failed")
+			log.WithFields(log.Fields{"err": err.Error()}).Error("Container failed")
 			return nil
 		}
 	} else {
 		if err := runInteractive("docker", sh...); err != nil {
-			log.WithFields(log.Fields{"err": err.Error()}).Error("container failed")
+			log.WithFields(log.Fields{"err": err.Error()}).Error("Container failed")
 			return nil
 		}
 	}
