@@ -89,6 +89,10 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		cnf = new(containerConfig)
 	}
 
+	if os.Getenv("JENKINS_URL") != "" {
+		cnf.NoTTY = true
+	}
+
 	root, err := os.Getwd()
 	if err != nil {
 		return errors.Trace(err)
