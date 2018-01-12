@@ -100,6 +100,7 @@ var CmdStart = &cobra.Command{
 				switch service.Type {
 				case "go":
 					containerCnf.ConfigureGopath = true
+					containerCnf.ShareGcloudConfig = true
 					containerArgs = append(containerArgs, "rerun", filepath.Join(cnf.Project, service.Workdir, "cmd", arg))
 				}
 			}
