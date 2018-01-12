@@ -20,6 +20,7 @@ type Service struct {
 	Deps    []string `yaml:"deps"`
 	Ports   []string `yaml:"ports"`
 	Workdir string   `yaml:"workdir"`
+	Volumes []string `yaml:"volumes"`
 }
 
 type Tool struct {

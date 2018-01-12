@@ -94,13 +94,14 @@ var CmdStart = &cobra.Command{
 				container = fmt.Sprintf("dev-%s", service.Type)
 
 				containerCnf.Ports = service.Ports
+				containerCnf.Volumes = service.Volumes
 				containerCnf.ShareWorkspace = true
 				containerCnf.LocalUser = true
+				containerCnf.ShareGcloudConfig = true
 
 				switch service.Type {
 				case "go":
 					containerCnf.ConfigureGopath = true
-					containerCnf.ShareGcloudConfig = true
 					containerArgs = append(containerArgs, "rerun", filepath.Join(cnf.Project, service.Workdir, "cmd", arg))
 				}
 			}
