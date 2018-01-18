@@ -243,13 +243,11 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 
 	if cnf.CreateOnly {
 		if err := runInteractiveDebugOutput("docker", sh...); err != nil {
-			log.WithFields(log.Fields{"err": err.Error()}).Error("Container failed")
-			return nil
+			return errors.Trace(err)
 		}
 	} else {
 		if err := runInteractive("docker", sh...); err != nil {
-			log.WithFields(log.Fields{"err": err.Error()}).Error("Container failed")
-			return nil
+			return errors.Trace(err)
 		}
 	}
 
