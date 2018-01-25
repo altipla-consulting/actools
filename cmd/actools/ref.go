@@ -125,6 +125,14 @@ var tools = map[string]*toolConfig{
 			NoTTY:          true,
 		},
 	},
+	"king": &toolConfig{
+		Container: "king",
+		Cnf: &containerConfig{
+			ShareWorkspace:  true,
+			LocalUser:       true,
+			ConfigureGopath: true,
+		},
+	},
 }
 
 var manualRun = map[string]*containerConfig{
