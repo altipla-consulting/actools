@@ -55,3 +55,8 @@ services:
     image: eu.gcr.io/altipla-tools/dev-go:latest
     build:
       context: containers/dev-go
+
+  king:
+    image: eu.gcr.io/altipla-tools/king:latest
+    build:
+      context: containers/king
