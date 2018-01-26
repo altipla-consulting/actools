@@ -18,5 +18,7 @@ RUN go get -u github.com/golang/protobuf/proto && \
     go get -u github.com/altipla-consulting/king/protoc-gen-king_go
 ENV GOPATH /go
 
-ENV PATH $PATH:/opt/protobuf/bin:/gotools/bin
+RUN ln -s /opt/protobuf/bin/protoc /usr/bin/king
+
+ENV PATH $PATH:/bin:/gotools/bin
 WORKDIR /workspace
