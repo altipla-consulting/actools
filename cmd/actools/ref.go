@@ -12,6 +12,7 @@ var containers = []string{
 	"protoc",
 	"rambler",
 	"sass-lint",
+	"king",
 }
 
 type toolConfig struct {
