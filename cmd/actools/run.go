@@ -82,6 +82,7 @@ type containerConfig struct {
 	CreateOnly        bool
 	NetworkAlias      []string
 	NoTTY             bool
+	Workdir           string
 }
 
 func runContainer(container string, cnf *containerConfig, args ...string) error {
@@ -126,6 +127,10 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 
 	if cnf.LocalUser {
 		sh = append(sh, "--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()))
+	}
+
+	if cnf.Workdir != "" {
+		sh = append(sh, "-w", cnf.Workdir)
 	}
 
 	for _, alias := range cnf.NetworkAlias {

@@ -139,8 +139,8 @@ var tools = map[string]*toolConfig{
 	"juice": &toolConfig{
 		Container: "juice",
 		Cnf: &containerConfig{
-			ShareWorkspace:  true,
-			LocalUser:       true,
+			ShareWorkspace: true,
+			LocalUser:      true,
 		},
 	},
 }
