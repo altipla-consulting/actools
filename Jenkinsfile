@@ -61,6 +61,10 @@ node {
     ci.container name:'sass-lint', context:'containers/sass-lint'
   }
 
+  stage('juice') {
+    ci.container name:'juice', context:'containers/juice'
+  }
+
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"

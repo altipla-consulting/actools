@@ -13,6 +13,7 @@ var containers = []string{
 	"rambler",
 	"sass-lint",
 	"king",
+	"juice",
 }
 
 type toolConfig struct {
@@ -132,6 +133,13 @@ var tools = map[string]*toolConfig{
 			ShareWorkspace:  true,
 			LocalUser:       true,
 			ConfigureGopath: true,
+		},
+	},
+	"juice": &toolConfig{
+		Container: "juice",
+		Cnf: &containerConfig{
+			ShareWorkspace:  true,
+			LocalUser:       true,
 		},
 	},
 }
