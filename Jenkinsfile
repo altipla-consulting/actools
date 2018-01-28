@@ -17,6 +17,10 @@ node {
     ci.container name:'dev-go', context:'containers/dev-go'
   }
 
+  stage('dev-gulp') {
+    ci.container name:'dev-gulp', context:'containers/dev-gulp'
+  }
+
   stage('gcloud') {
     ci.container name:'gcloud', context:'containers/gcloud'
   }

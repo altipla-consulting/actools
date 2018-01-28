@@ -65,3 +65,8 @@ services:
     image: eu.gcr.io/altipla-tools/juice:latest
     build:
       context: containers/juice
+
+  dev-gulp:
+    image: eu.gcr.io/altipla-tools/dev-gulp:latest
+    build:
+      context: containers/dev-gulp

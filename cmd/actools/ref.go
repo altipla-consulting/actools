@@ -2,18 +2,19 @@ package main
 
 var containers = []string{
 	"dev-go",
+	"dev-gulp",
 	"gcloud",
 	"glide",
 	"go",
 	"gulp",
+	"juice",
+	"king",
 	"mysql",
 	"node",
 	"phpmyadmin",
 	"protoc",
 	"rambler",
 	"sass-lint",
-	"king",
-	"juice",
 }
 
 type toolConfig struct {
