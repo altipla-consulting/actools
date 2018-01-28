@@ -63,6 +63,6 @@ node {
 
   stage('actools') {
     sh 'actools go install ./cmd/actools'
-    ci.gsutil "-h 'Cache-Control: no-cache' -m rsync -c /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"
+    ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"
   }
 }
