@@ -103,6 +103,7 @@ var CmdStart = &cobra.Command{
 				case "go":
 					containerCnf.ConfigureGopath = true
 					containerArgs = append(containerArgs, "rerun", filepath.Join(cnf.Project, service.Workdir, "cmd", arg))
+					containerCnf.Workdir = fmt.Sprintf("/%s", service.Workdir)
 
 				case "gulp":
 					containerCnf.Workdir = fmt.Sprintf("/workspace/%s", service.Workdir)

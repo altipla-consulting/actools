@@ -129,10 +129,6 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		sh = append(sh, "--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()))
 	}
 
-	if cnf.Workdir != "" {
-		sh = append(sh, "-w", cnf.Workdir)
-	}
-
 	for _, alias := range cnf.NetworkAlias {
 		sh = append(sh, "--network-alias", alias)
 	}
@@ -189,12 +185,12 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 			}
 		}
 
-		cnf, err := ReadConfig()
+		projectCnf, err := ReadConfig()
 		if err != nil {
 			return errors.Trace(err)
 		}
-		if cnf != nil {
-			project = cnf.Project
+		if projectCnf != nil {
+			project = projectCnf.Project
 		}
 
 		if project != "" {
@@ -211,7 +207,14 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 			}
 
 			sh = append(sh, "-v", fmt.Sprintf("%s:/go/src/%s", root, project))
-			sh = append(sh, "-w", fmt.Sprintf("/go/src/%s", project))
+			sh = append(sh, "-w", fmt.Sprintf("/go/src/%s%s", project, cnf.Workdir))
+		}
+	} else {
+		// TODO(ernesto): Cuando la ejecución de Docker sea una lib con structs en vez
+		// de flags acumuladas podremos sobreescribir esto tranquilamente y no tendremos
+		// este else tan concreto.
+		if cnf.Workdir != "" {
+			sh = append(sh, "-w", cnf.Workdir)
 		}
 	}
 
