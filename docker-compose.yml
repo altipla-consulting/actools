@@ -70,3 +70,8 @@ services:
     image: eu.gcr.io/altipla-tools/dev-gulp:latest
     build:
       context: containers/dev-gulp
+
+  baster:
+    image: eu.gcr.io/altipla-tools/baster:latest
+    build:
+      context: containers/baster

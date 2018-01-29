@@ -1,6 +1,7 @@
 package main
 
 var containers = []string{
+	"baster",
 	"dev-go",
 	"dev-gulp",
 	"gcloud",
@@ -142,6 +143,10 @@ var tools = map[string]*toolConfig{
 			ShareWorkspace: true,
 			LocalUser:      true,
 		},
+	},
+	"baster": &toolConfig{
+		Container: "baster",
+		Cnf:       new(containerConfig),
 	},
 }
 
