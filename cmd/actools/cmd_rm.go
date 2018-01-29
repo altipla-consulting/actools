@@ -34,10 +34,19 @@ var CmdRm = &cobra.Command{
 		}
 		root = filepath.Base(root)
 
+		if len(args) == 0 {
+			for tool := range cnf.Tools {
+				args = append(args, tool)
+			}
+			for service := range cnf.Services {
+				args = append(args, service)
+			}
+		}
+
 		for _, arg := range args {
 			_, serviceOk := cnf.Services[arg]
 			_, toolsOk := cnf.Tools[arg]
-			if !serviceOk || !toolsOk {
+			if !serviceOk && !toolsOk {
 				return errors.NotFoundf("tool %s", arg)
 			}
 		}
