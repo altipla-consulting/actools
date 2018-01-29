@@ -69,6 +69,10 @@ node {
     ci.container name:'juice', context:'containers/juice'
   }
 
+  stage('baster') {
+    ci.container name:'baster', context:'containers/baster'
+  }
+
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"
