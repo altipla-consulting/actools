@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/altipla-consulting/collections"
@@ -195,8 +196,7 @@ func RunForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName, co
 		loggerOut := log.New()
 		loggerOut.Formatter = newPrefixFormatter(serviceName)
 		loggerOut.SetLevel(log.StandardLogger().Level)
-		wout := loggerOut.WriterLevel(log.InfoLevel)
-		defer wout.Close()
+		wout := &logrusWriter{loggerOut}
 		cmd.Stdout = wout
 
 		loggerErr := log.New()
@@ -226,4 +226,19 @@ func RunForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName, co
 			logger.WithFields(log.Fields{"err": err.Error()}).Error("Stop foreground service failed")
 		}
 	}
+}
+
+type logrusWriter struct {
+	logger *log.Logger
+}
+
+func (w *logrusWriter) Write(b []byte) (int, error) {
+	s := string(b)
+	s = strings.TrimSpace(s)
+	parts := strings.Split(s, "\r\n")
+	for _, part := range parts {
+		w.logger.Info(part)
+	}
+
+	return len(b), nil
 }

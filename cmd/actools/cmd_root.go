@@ -12,8 +12,8 @@ func init() {
 }
 
 var CmdRoot = &cobra.Command{
-	Use:   "actools",
-	Short: "Actools actua de helper de las herramientas de desarrollo de Altipla Consulting",
+	Use:          "actools",
+	Short:        "Actools actua de helper de las herramientas de desarrollo de Altipla Consulting",
 	SilenceUsage: true,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if debugApp {
