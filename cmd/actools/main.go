@@ -1,5 +1,11 @@
 package main
 
+import (
+	"os"
+)
+
 func main() {
-	CmdRoot.Execute()
+	if err := CmdRoot.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
