@@ -211,6 +211,10 @@ func RunForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName, co
 			return
 		}
 		if err := cmd.Wait(); err != nil {
+			if err.Error() == "signal: interrupt" {
+				return
+			}
+
 			notifyErr <- err
 			return
 		}
