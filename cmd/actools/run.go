@@ -135,7 +135,7 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 
 	if cnf.ShareSSHSocket {
 		sshAuthSock := os.Getenv("SSH_AUTH_SOCK")
-		if sshAuthSock == "" {
+		if sshAuthSock == "" && os.Getenv("JENKINS_URL") != "" {
 			log.Warning("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
 		}
 		if sshAuthSock != "" {
