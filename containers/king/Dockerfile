@@ -10,7 +10,7 @@ RUN curl -sL -o protoc.zip https://github.com/google/protobuf/releases/download/
     rm protoc.zip && \
     chmod -R 0777 /opt/protobuf
 
-ENV CACHE_BUST 8
+ENV CACHE_BUST 9
 ENV GOPATH /gotools
 RUN go get -u github.com/golang/protobuf/proto && \
     go get -u github.com/golang/protobuf/protoc-gen-go && \
