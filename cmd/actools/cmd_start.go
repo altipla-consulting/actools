@@ -96,6 +96,7 @@ var CmdStart = &cobra.Command{
 
 				containerCnf.Ports = service.Ports
 				containerCnf.Volumes = service.Volumes
+				containerCnf.Env = service.Env
 				containerCnf.ShareWorkspace = true
 				containerCnf.LocalUser = true
 				containerCnf.ShareGcloudConfig = true

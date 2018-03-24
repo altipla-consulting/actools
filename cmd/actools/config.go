@@ -16,11 +16,12 @@ type Config struct {
 }
 
 type Service struct {
-	Type    string   `yaml:"type"`
-	Deps    []string `yaml:"deps"`
-	Ports   []string `yaml:"ports"`
-	Workdir string   `yaml:"workdir"`
-	Volumes []string `yaml:"volumes"`
+	Type    string            `yaml:"type"`
+	Deps    []string          `yaml:"deps"`
+	Ports   []string          `yaml:"ports"`
+	Workdir string            `yaml:"workdir"`
+	Volumes []string          `yaml:"volumes"`
+	Env     map[string]string `yaml:"env"`
 }
 
 type Tool struct {

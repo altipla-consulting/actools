@@ -83,6 +83,7 @@ type containerConfig struct {
 	NetworkAlias      []string
 	NoTTY             bool
 	Workdir           string
+	Env               map[string]string
 }
 
 func runContainer(container string, cnf *containerConfig, args ...string) error {
@@ -131,6 +132,10 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 
 	for _, alias := range cnf.NetworkAlias {
 		sh = append(sh, "--network-alias", alias)
+	}
+
+	for k, v := range cnf.Env {
+		sh = append(sh, "-e", fmt.Sprintf("%v=%v", k, v))
 	}
 
 	if cnf.ShareSSHSocket {
