@@ -16,6 +16,7 @@ var containers = []string{
 	"phpmyadmin",
 	"protoc",
 	"rambler",
+	"redis",
 	"sass-lint",
 }
 

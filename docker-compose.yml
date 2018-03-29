@@ -80,3 +80,8 @@ services:
     image: eu.gcr.io/altipla-tools/cloudsqlproxy:latest
     build:
       context: containers/cloudsqlproxy
+
+  redis:
+    image: eu.gcr.io/altipla-tools/redis:latest
+    build:
+      context: containers/redis
