@@ -152,6 +152,7 @@ var tools = map[string]*toolConfig{
 	"cloudsqlproxy": &toolConfig{
 		Container: "cloudsqlproxy",
 		Cnf: &containerConfig{
+			LocalUser:         true,
 			ShareGcloudConfig: true,
 		},
 	},
