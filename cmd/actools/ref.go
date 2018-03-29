@@ -2,6 +2,7 @@ package main
 
 var containers = []string{
 	"baster",
+	"cloudsqlproxy",
 	"dev-go",
 	"dev-gulp",
 	"gcloud",
@@ -147,6 +148,12 @@ var tools = map[string]*toolConfig{
 	"baster": &toolConfig{
 		Container: "baster",
 		Cnf:       new(containerConfig),
+	},
+	"cloudsqlproxy": &toolConfig{
+		Container: "cloudsqlproxy",
+		Cnf: &containerConfig{
+			ShareGcloudConfig: true,
+		},
 	},
 }
 

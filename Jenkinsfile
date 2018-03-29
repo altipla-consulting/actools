@@ -73,6 +73,10 @@ node {
     ci.container name:'baster', context:'containers/baster'
   }
 
+  stage('cloudsqlproxy') {
+    ci.container name:'cloudsqlproxy', context:'containers/cloudsqlproxy'
+  }
+
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"

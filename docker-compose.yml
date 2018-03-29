@@ -75,3 +75,8 @@ services:
     image: eu.gcr.io/altipla-tools/baster:latest
     build:
       context: containers/baster
+
+  cloudsqlproxy:
+    image: eu.gcr.io/altipla-tools/cloudsqlproxy:latest
+    build:
+      context: containers/cloudsqlproxy
