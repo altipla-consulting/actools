@@ -118,9 +118,13 @@ var CmdStart = &cobra.Command{
 
 				containerCnf.Ports = tool.Ports
 				containerCnf.Volumes = tool.Volumes
-				containerArgs = append(containerArgs, tool.Args...)
 
 				switch tool.Container {
+				case "cloudsqlproxy":
+					containerCnf.LocalUser = true
+					containerCnf.ShareGcloudConfig = true
+					containerArgs = append(containerArgs, "/opt/cloudsqlproxy")
+					containerArgs = append(containerArgs, tool.Args...)
 				}
 			}
 

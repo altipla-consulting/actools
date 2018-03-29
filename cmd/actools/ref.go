@@ -149,13 +149,6 @@ var tools = map[string]*toolConfig{
 		Container: "baster",
 		Cnf:       new(containerConfig),
 	},
-	"cloudsqlproxy": &toolConfig{
-		Container: "cloudsqlproxy",
-		Cnf: &containerConfig{
-			LocalUser:         true,
-			ShareGcloudConfig: true,
-		},
-	},
 }
 
 var manualRun = map[string]*containerConfig{
