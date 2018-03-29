@@ -29,6 +29,7 @@ type Tool struct {
 	Deps      []string `yaml:"deps"`
 	Ports     []string `yaml:"ports"`
 	Volumes   []string `yaml:"volumes"`
+	Args      []string `yaml:"args"`
 }
 
 func ReadConfig() (*Config, error) {

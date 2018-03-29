@@ -118,6 +118,7 @@ var CmdStart = &cobra.Command{
 
 				containerCnf.Ports = tool.Ports
 				containerCnf.Volumes = tool.Volumes
+				containerArgs = append(containerAgrs, tool.Args)
 
 				switch tool.Container {
 				}
