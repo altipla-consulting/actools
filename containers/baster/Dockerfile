@@ -1,5 +1,5 @@
 
-FROM altipla/baster:v2.0.2
+FROM altipla/baster:v2.1.1
 MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 WORKDIR /workspace
