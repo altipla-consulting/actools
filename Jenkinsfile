@@ -77,6 +77,10 @@ node {
     ci.container name:'cloudsqlproxy', context:'containers/cloudsqlproxy'
   }
 
+  stage('redis') {
+    ci.container name:'redis', context:'containers/redis'
+  }
+
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"
