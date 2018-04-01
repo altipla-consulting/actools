@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/juju/errors"
 	"github.com/spf13/cobra"
@@ -38,7 +39,7 @@ var CmdConfigMap = &cobra.Command{
 			if err != nil {
 				return errors.Trace(err)
 			}
-			cnf.Data[arg] = string(content)
+			cnf.Data[filepath.Base(arg)] = string(content)
 		}
 
 		output, err := yaml.Marshal(cnf)
