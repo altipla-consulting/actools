@@ -237,10 +237,14 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		sh = append(sh, "-p", port)
 	}
 	for _, volume := range cnf.Volumes {
-		if strings.HasPrefix(volume, "./") {
-			volume = filepath.Join(root, volume[2:])
+		parts := strings.Split(volume, ":")
+		source, destination := parts[0], parts[1]
+
+		if strings.HasPrefix(source, "./") {
+			source = filepath.Join(root, source[2:])
 		}
-		sh = append(sh, "-v", volume)
+
+		sh = append(sh, "-v", fmt.Sprintf("%s:%s", source, destination))
 	}
 	sh = append(sh, fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", container))
 	sh = append(sh, args...)
