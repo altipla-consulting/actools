@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/juju/errors"
@@ -126,7 +127,7 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		sh = append(sh, "-v", fmt.Sprintf("%s:/workspace", root))
 	}
 
-	if cnf.LocalUser {
+	if cnf.LocalUser && runtime.GOOS == "linux" {
 		sh = append(sh, "--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()))
 	}
 
