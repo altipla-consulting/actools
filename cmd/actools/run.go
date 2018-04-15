@@ -145,8 +145,9 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 			log.Warning("WARNING: No SSH_AUTH_SOCK defined in the environment. Start an ssh-agent to share the SSH keys with the tools.")
 		}
 		if sshAuthSock != "" {
-			sh = append(sh, "-e", fmt.Sprintf("SSH_AUTH_SOCK=%s", sshAuthSock))
-			sh = append(sh, "-v", fmt.Sprintf("%s:%s", sshAuthSock, sshAuthSock))
+			pid := filepath.Ext(sshAuthSock)
+			sh = append(sh, "-e", fmt.Sprintf("SSH_AUTH_SOCK=/tmp/ssh-sock/agent.%s", pid))
+			sh = append(sh, "-v", fmt.Sprintf("%s:/tmp/ssh-sock/agent.%s", sshAuthSock, pid))
 		}
 	}
 
