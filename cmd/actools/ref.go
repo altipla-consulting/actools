@@ -150,6 +150,10 @@ var tools = map[string]*toolConfig{
 		Container: "baster",
 		Cnf:       new(containerConfig),
 	},
+	"pdfgen": &toolConfig{
+		Container: "pdfgen",
+		Cnf:       new(containerConfig),
+	},
 }
 
 var manualRun = map[string]*containerConfig{
