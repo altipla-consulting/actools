@@ -13,6 +13,7 @@ var containers = []string{
 	"king",
 	"mysql",
 	"node",
+	"pdfgen",
 	"phpmyadmin",
 	"protoc",
 	"rambler",
