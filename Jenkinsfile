@@ -81,6 +81,10 @@ node {
     ci.container name:'redis', context:'containers/redis'
   }
 
+  stage('pdfgen') {
+    ci.container name:'pdfgen', context:'containers/pdfgen'
+  }
+
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"
