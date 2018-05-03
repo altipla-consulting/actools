@@ -132,6 +132,14 @@ var tools = map[string]*toolConfig{
 			NoTTY:          true,
 		},
 	},
+	"mysqldump": &toolConfig{
+		Container: "mysql",
+		Cnf: &containerConfig{
+			ShareWorkspace: true,
+			LocalUser:      true,
+			NoTTY:          true,
+		},
+	},
 	"king": &toolConfig{
 		Container: "king",
 		Cnf: &containerConfig{
