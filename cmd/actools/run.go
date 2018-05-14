@@ -226,7 +226,8 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 	}
 
 	networkName := fmt.Sprintf("%s_default", filepath.Base(root))
-	hasNetwork, err := docker.NetworkExists(networkName)
+	network := docker.Network(networkName)
+	hasNetwork, err := network.Exists()
 	if err != nil {
 		return errors.Trace(err)
 	}
