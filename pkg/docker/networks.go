@@ -17,7 +17,6 @@ func Network(name string) *NetworkManager {
 
 func (network *NetworkManager) Exists() (bool, error) {
 	cmd := exec.Command("docker", "network", "inspect", network.name)
-
 	if err := cmd.Run(); err != nil {
 		if !cmd.ProcessState.Success() {
 			return false, nil

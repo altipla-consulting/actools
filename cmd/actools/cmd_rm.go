@@ -1,10 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -18,21 +14,15 @@ func init() {
 
 var CmdRm = &cobra.Command{
 	Use:   "rm",
-	Short: "Elimina un servicio de desarrollo persistente",
+	Short: "Elimina un servicio de desarrollo persistente. Sin argumentos elimina todos los servicios.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cnf, err := ReadConfig()
 		if err != nil {
 			return errors.Trace(err)
 		}
-		if cnf == nil || cnf.Services == nil {
+		if cnf == nil || (cnf.Services == nil && cnf.Tools == nil) {
 			return errors.NotFoundf("actools.yml")
 		}
-
-		root, err := os.Getwd()
-		if err != nil {
-			return errors.Trace(err)
-		}
-		root = filepath.Base(root)
 
 		if len(args) == 0 {
 			for tool := range cnf.Tools {
@@ -47,29 +37,28 @@ var CmdRm = &cobra.Command{
 			_, serviceOk := cnf.Services[arg]
 			_, toolsOk := cnf.Tools[arg]
 			if !serviceOk && !toolsOk {
-				return errors.NotFoundf("tool %s", arg)
+				return errors.NotFoundf("service %s", arg)
 			}
 		}
 
-		for _, arg := range args {
-			name := fmt.Sprintf("%s_%s", root, arg)
+		for _, service := range args {
+			container := docker.Container(service)
 
-			hasContainer, err := docker.ContainerExists(name)
+			exists, err := container.Exists()
 			if err != nil {
 				return errors.Trace(err)
 			}
-			if !hasContainer {
-				log.WithFields(log.Fields{"tool": arg}).Info("Tool already removed")
+			if !exists {
 				continue
 			}
 
-			log.WithFields(log.Fields{"tool": arg}).Info("Stop tool")
-			if err := runInteractiveDebugOutput("docker", "stop", name); err != nil {
+			log.WithField("service", service).Info("Stop service")
+			if err := container.Stop(); err != nil {
 				return errors.Trace(err)
 			}
 
-			log.WithFields(log.Fields{"tool": arg}).Info("Remove tool")
-			if err := runInteractiveDebugOutput("docker", "rm", name); err != nil {
+			log.WithField("service", service).Info("Remove service")
+			if err := container.Remove(); err != nil {
 				return errors.Trace(err)
 			}
 		}

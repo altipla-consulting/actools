@@ -69,8 +69,10 @@ var CmdStart = &cobra.Command{
 		wg := new(sync.WaitGroup)
 		notifyExit := make(chan struct{})
 		for _, arg := range start {
+			containerTODO := docker.Container(arg)
+
 			name := fmt.Sprintf("%s_%s", filepath.Base(root), arg)
-			hasContainer, err := docker.ContainerExists(name)
+			hasContainer, err := containerTODO.Exists()
 			if err != nil {
 				return errors.Trace(err)
 			}
