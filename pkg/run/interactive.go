@@ -40,3 +40,23 @@ func Interactive(name string, args ...string) error {
 
 	return nil
 }
+
+func InteractiveWithOutput(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	logArgs := []string{}
+	for _, arg := range args {
+		logArgs = append(logArgs, strconv.Quote(arg))
+	}
+	shell := fmt.Sprintf("%s %s", name, strings.Join(logArgs, " "))
+	log.WithField("cmd", shell).Debug("Run interactive command with output")
+
+	if err := cmd.Run(); err != nil {
+		return errors.Trace(err)
+	}
+
+	return nil
+}

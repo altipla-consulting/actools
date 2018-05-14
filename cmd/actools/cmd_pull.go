@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 
+	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
 func init() {
@@ -15,10 +18,12 @@ var CmdPull = &cobra.Command{
 	Use:   "pull",
 	Short: "Descarga y actualiza forzosamente las imágenes de los contenedores de herramientas.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		for _, container := range containers {
-			log.WithFields(log.Fields{"container": container}).Info("Download container")
-			if err := runInteractive("docker", "pull", fmt.Sprintf("eu.gcr.io/altipla-tools/%s:latest", container)); err != nil {
-				return err
+		for _, image := range containers {
+			log.WithField("image", image).Info("Download image")
+
+			image := docker.Image("eu.gcr.io", fmt.Sprintf("altipla-tools/%s", image), "latest")
+			if err := image.Pull(); err != nil {
+				return errors.Trace(err)
 			}
 		}
 
