@@ -37,7 +37,10 @@ var CmdStop = &cobra.Command{
 		}
 
 		for _, service := range args {
-			container := docker.Container(service)
+			container, err := docker.Container(service)
+			if err != nil {
+				return errors.Trace(err)
+			}
 
 			// TODO(ernesto): Aquí lo suyo sería comprobar si el contenedor está encendido.
 

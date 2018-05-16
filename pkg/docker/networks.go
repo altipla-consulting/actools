@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"fmt"
 	"os/exec"
 
 	"github.com/juju/errors"
@@ -12,7 +13,9 @@ type NetworkManager struct {
 }
 
 func Network(name string) *NetworkManager {
-	return &NetworkManager{name}
+	return &NetworkManager{
+		name: fmt.Sprintf("actools_%s", name),
+	}
 }
 
 func (network *NetworkManager) Exists() (bool, error) {
@@ -46,4 +49,8 @@ func (network *NetworkManager) CreateIfNotExists() error {
 	}
 
 	return nil
+}
+
+func (network *NetworkManager) String() string {
+	return network.name
 }

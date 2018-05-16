@@ -42,13 +42,17 @@ var CmdRm = &cobra.Command{
 		}
 
 		for _, service := range args {
-			container := docker.Container(service)
+			container, err := docker.Container(service)
+			if err != nil {
+				return errors.Trace(err)
+			}
 
 			exists, err := container.Exists()
 			if err != nil {
 				return errors.Trace(err)
 			}
 			if !exists {
+				log.WithField("service", service).Info("Remove service")
 				continue
 			}
 

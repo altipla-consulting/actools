@@ -21,3 +21,7 @@ func Image(repo, name, tag string) *ImageManager {
 func (image *ImageManager) Pull() error {
 	return errors.Trace(run.InteractiveWithOutput("docker", "pull", image.name))
 }
+
+func (image *ImageManager) String() string {
+	return image.name
+}
