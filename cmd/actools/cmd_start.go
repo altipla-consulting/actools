@@ -38,7 +38,7 @@ var CmdStart = &cobra.Command{
 			return errors.Trace(err)
 		}
 
-		network := docker.Network(fmt.Sprintf("%s_default", filepath.Base(root)))
+		network := docker.Network(fmt.Sprintf("%s", filepath.Base(root)))
 		if err := network.CreateIfNotExists(); err != nil {
 			return errors.Trace(err)
 		}
