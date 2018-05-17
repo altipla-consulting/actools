@@ -10,7 +10,7 @@ type Container struct {
 	Options []docker.ContainerOption
 }
 
-var containers = []*Container{
+var containers = []Container{
 	{
 		Image:   "baster",
 		Tools:   []string{"baster"},
@@ -155,4 +155,8 @@ func Images() []string {
 	}
 
 	return images
+}
+
+func List() []Container {
+	return containers
 }
