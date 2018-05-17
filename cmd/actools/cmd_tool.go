@@ -5,35 +5,49 @@ import (
 
 	"github.com/juju/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/altipla-consulting/actools/pkg/containers"
+	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
 func init() {
-	for tool, toolCnf := range tools {
-		createToolCommand(tool, toolCnf.Container, toolCnf.Cnf)
-	}
-}
+	for _, container := range containers.List() {
+		for _, tool := range container.Tools {
+			run := func(cmd *cobra.Command, args []string) error {
+				options := []docker.ContainerOption{
+					docker.WithImage(docker.Image(containers.Repo, container.Image, "latest")),
+					docker.WithDefaultNetwork(),
+				}
+				options = append(options, container.Options...)
+				container, err := docker.Container(fmt.Sprintf("tool-%s-%s", container.Image, tool), options...)
+				if err != nil {
+					return errors.Trace(err)
+				}
 
-func createToolCommand(tool, container string, cnf *containerConfig) {
-	run := func(cmd *cobra.Command, args []string) error {
-		containerArgs := append([]string{tool}, args...)
-		return errors.Trace(runContainer(container, cnf, containerArgs...))
-	}
+				if err := container.Run(args...); err != nil {
+					return errors.Trace(err)
+				}
 
-	var CmdTool = &cobra.Command{
-		Use:                   tool,
-		Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container),
-		DisableFlagParsing:    true,
-		DisableFlagsInUseLine: true,
-		RunE: run,
-	}
-	CmdRoot.AddCommand(CmdTool)
+				return nil
+			}
 
-	var CmdToolDebug = &cobra.Command{
-		Use:                   tool,
-		Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container),
-		DisableFlagParsing:    true,
-		DisableFlagsInUseLine: true,
-		RunE: run,
+			var CmdTool = &cobra.Command{
+				Use:                   tool,
+				Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
+				DisableFlagParsing:    true,
+				DisableFlagsInUseLine: true,
+				RunE: run,
+			}
+			CmdRoot.AddCommand(CmdTool)
+
+			var CmdToolDebug = &cobra.Command{
+				Use:                   tool,
+				Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
+				DisableFlagParsing:    true,
+				DisableFlagsInUseLine: true,
+				RunE: run,
+			}
+			CmdDebug.AddCommand(CmdToolDebug)
+		}
 	}
-	CmdDebug.AddCommand(CmdToolDebug)
 }
