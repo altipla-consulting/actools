@@ -27,12 +27,19 @@ func Interactive(name string, args ...string) error {
 	defer werr.Close()
 	cmd.Stderr = werr
 
+	// Print the command. Do not use fields as they escape the value and the
+	// result cannot be copied.
 	logArgs := []string{}
 	for _, arg := range args {
-		logArgs = append(logArgs, strconv.Quote(arg))
+		if strings.Contains(arg, `"`) {
+			logArgs = append(logArgs, strconv.Quote(arg))
+		} else {
+			logArgs = append(logArgs, arg)
+		}
 	}
 	shell := fmt.Sprintf("%s %s", name, strings.Join(logArgs, " "))
-	log.WithField("cmd", shell).Debug("Run interactive command")
+	log.Debug("Run interactive command")
+	log.Debugln(shell)
 
 	if err := cmd.Run(); err != nil {
 		return errors.Trace(err)
@@ -47,12 +54,19 @@ func InteractiveWithOutput(name string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	// Print the command. Do not use fields as they escape the value and the
+	// result cannot be copied.
 	logArgs := []string{}
 	for _, arg := range args {
-		logArgs = append(logArgs, strconv.Quote(arg))
+		if strings.Contains(arg, `"`) {
+			logArgs = append(logArgs, strconv.Quote(arg))
+		} else {
+			logArgs = append(logArgs, arg)
+		}
 	}
 	shell := fmt.Sprintf("%s %s", name, strings.Join(logArgs, " "))
-	log.WithField("cmd", shell).Debug("Run interactive command with output")
+	log.Debug("Run interactive command with output")
+	log.Debugln(shell)
 
 	if err := cmd.Run(); err != nil {
 		return errors.Trace(err)
