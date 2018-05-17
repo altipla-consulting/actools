@@ -20,6 +20,19 @@ func WithNetwork(network *NetworkManager) ContainerOption {
 	}
 }
 
+func WithDefaultNetwork() ContainerOption {
+	return func(container *ContainerManager) error {
+		wd, err := os.Getwd()
+		if err != nil {
+			return errors.Trace(err)
+		}
+
+		container.network = Network(filepath.Base(wd))
+
+		return nil
+	}
+}
+
 func WithImage(image *ImageManager) ContainerOption {
 	return func(container *ContainerManager) error {
 		container.image = image
