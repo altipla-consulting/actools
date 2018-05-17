@@ -7,8 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/altipla-consulting/actools/pkg/containers"
 	"github.com/altipla-consulting/actools/pkg/docker"
-	"github.com/altipla-consulting/actools/pkg/config"
 )
 
 func init() {
@@ -19,7 +19,7 @@ var CmdPull = &cobra.Command{
 	Use:   "pull",
 	Short: "Descarga y actualiza forzosamente las imágenes de los contenedores de herramientas.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		for _, image := range config.Containers {
+		for _, image := range containers.Images() {
 			log.WithField("image", image).Info("Download image")
 
 			image := docker.Image("eu.gcr.io", fmt.Sprintf("altipla-tools/%s", image), "latest")

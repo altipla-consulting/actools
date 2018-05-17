@@ -131,7 +131,7 @@ func WithPort(source, inside int64) ContainerOption {
 	}
 }
 
-func WithSharedGoPath() ContainerOption {
+func WithSharedGopath() ContainerOption {
 	return func(container *ContainerManager) error {
 		if config.ProjectPackage() != "" {
 			hostBin := fmt.Sprintf("%s/.actools/cache-%s/bin", config.Home(), config.ProjectName())
