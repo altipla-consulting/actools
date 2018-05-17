@@ -1,26 +1,5 @@
 package main
 
-var containers = []string{
-	"baster",
-	"cloudsqlproxy",
-	"dev-go",
-	"dev-gulp",
-	"gcloud",
-	"glide",
-	"go",
-	"gulp",
-	"juice",
-	"king",
-	"mysql",
-	"node",
-	"pdfgen",
-	"phpmyadmin",
-	"protoc",
-	"rambler",
-	"redis",
-	"sass-lint",
-}
-
 type toolConfig struct {
 	Container string
 	Cnf       *containerConfig
