@@ -52,7 +52,6 @@ var CmdRm = &cobra.Command{
 				return errors.Trace(err)
 			}
 			if !exists {
-				log.WithField("service", service).Info("Remove service")
 				continue
 			}
 
