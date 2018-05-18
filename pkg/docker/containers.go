@@ -57,6 +57,31 @@ func (container *ContainerManager) Exists() (bool, error) {
 	return true, nil
 }
 
+func (container *ContainerManager) Running() (bool, error) {
+	exists, err := container.Exists()
+	if err != nil {
+		return false, errors.Trace(err)
+	} else if !exists {
+		return false, nil
+	}
+
+	cmd := exec.Command("docker", "inspect", "-f", "{{.State.Running}}", container.name)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, errors.Annotate(err, "cannot inspect container")
+	}
+
+	switch strings.TrimSpace(string(output)) {
+	case "true":
+		return true, nil
+
+	case "false":
+		return false, nil
+	}
+
+	return false, errors.Errorf("unknown inspect output: %s", output)
+}
+
 func (container *ContainerManager) Stop() error {
 	exists, err := container.Exists()
 	if err != nil {
