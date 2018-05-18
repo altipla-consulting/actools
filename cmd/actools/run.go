@@ -225,14 +225,13 @@ func runContainer(container string, cnf *containerConfig, args ...string) error 
 		}
 	}
 
-	networkName := fmt.Sprintf("%s", filepath.Base(root))
-	network := docker.Network(networkName)
+	network := docker.Network(filepath.Base(root))
 	hasNetwork, err := network.Exists()
 	if err != nil {
 		return errors.Trace(err)
 	}
 	if hasNetwork {
-		sh = append(sh, fmt.Sprintf("--network=%s", networkName))
+		sh = append(sh, fmt.Sprintf("--network=%s", network.String()))
 	}
 
 	for _, port := range cnf.Ports {
