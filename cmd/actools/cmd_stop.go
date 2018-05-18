@@ -42,7 +42,12 @@ var CmdStop = &cobra.Command{
 				return errors.Trace(err)
 			}
 
-			// TODO(ernesto): Aquí lo suyo sería comprobar si el contenedor está encendido.
+			running, err := container.Running()
+			if err != nil {
+				return errors.Trace(err)
+			} else if !running {
+				continue
+			}
 
 			log.WithField("service", service).Info("Stop service")
 			if err := container.Stop(); err != nil {
