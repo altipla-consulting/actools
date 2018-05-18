@@ -14,7 +14,7 @@ func init() {
 
 var CmdRm = &cobra.Command{
 	Use:   "rm",
-	Short: "Elimina un servicio de desarrollo persistente. Sin argumentos elimina todos los servicios.",
+	Short: "Elimina un servicio de desarrollo. Sin argumentos elimina todos los servicios.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cnf, err := ReadConfig()
 		if err != nil {
@@ -50,14 +50,18 @@ var CmdRm = &cobra.Command{
 			exists, err := container.Exists()
 			if err != nil {
 				return errors.Trace(err)
-			}
-			if !exists {
+			} else if !exists {
 				continue
 			}
 
-			log.WithField("service", service).Info("Stop service")
-			if err := container.Stop(); err != nil {
+			running, err := container.Running()
+			if err != nil {
 				return errors.Trace(err)
+			} else if running {
+				log.WithField("service", service).Info("Stop service")
+				if err := container.Stop(); err != nil {
+					return errors.Trace(err)
+				}
 			}
 
 			log.WithField("service", service).Info("Remove service")
