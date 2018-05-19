@@ -1,6 +1,8 @@
 package containers
 
 import (
+	"github.com/juju/errors"
+
 	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
@@ -17,11 +19,11 @@ var containers = []Container{
 		Options: []docker.ContainerOption{},
 	},
 	{
-		Image:   "cloudsqlproxy",
-		Tools:   []string{},
+		Image: "cloudsqlproxy",
+		Tools: []string{},
 		Options: []docker.ContainerOption{
 			docker.WithLocalUser(),
-			docker.ShareGcloudConfig(),
+			docker.WithSharedGcloud(),
 		},
 	},
 	{
@@ -35,8 +37,8 @@ var containers = []Container{
 		},
 	},
 	{
-		Image:   "dev-gulp",
-		Tools:   []string{},
+		Image: "dev-gulp",
+		Tools: []string{},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
@@ -98,7 +100,15 @@ var containers = []Container{
 	},
 	{
 		Image: "mysql",
-		Tools: []string{"mysql", "mysqldump"},
+		Tools: []string{"mysql"},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithoutTTY(),
+		},
+	},
+	{
+		Image: "mysqldump",
+		Tools: []string{"mysqldump"},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),

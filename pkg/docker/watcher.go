@@ -1,27 +1,31 @@
 package docker
 
 import (
-	"sync"
-	"os"
-	"os/signal"
 	"fmt"
+	"os"
+	"os/exec"
+	"os/signal"
+	"strings"
+	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Watcher struct {
-	wg *sync.WaitGroup
+	wg         *sync.WaitGroup
 	notifyExit chan struct{}
 }
 
 func NewWatcher() *Watcher {
 	return &Watcher{
-		wg: new(sync.WaitGroup),
+		wg:         new(sync.WaitGroup),
 		notifyExit: make(chan struct{}),
 	}
 }
 
-func (watcher *Watcher) Run(serviceName string, container *Container) {
+func (watcher *Watcher) Run(serviceName string, container *ContainerManager) {
 	watcher.wg.Add(1)
-	go run(watcher.wg, watcher.notifyExit, serviceName, container)
+	go runForeground(watcher.wg, watcher.notifyExit, serviceName, container)
 }
 
 func (watcher *Watcher) Wait() {
@@ -43,7 +47,7 @@ func (watcher *Watcher) Wait() {
 	watcher.wg.Wait()
 }
 
-func run(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName string, container *Container) {
+func runForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName string, container *ContainerManager) {
 	defer wg.Done()
 
 	logger := log.WithField("service", serviceName)
@@ -51,7 +55,7 @@ func run(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName string, conta
 
 	notifyErr := make(chan error, 1)
 	go func() {
-		cmd := exec.Command("docker", "start", "-a", containerName)
+		cmd := exec.Command("docker", "start", "-a", container.String())
 		cmd.Stdin = os.Stdin
 
 		loggerOut := log.New()
@@ -87,8 +91,7 @@ func run(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName string, conta
 	case <-notifyExit:
 		logger.Info("Kill service")
 		if err := container.Kill(); err != nil {
-		  return errors.Trace(err)
-			logger.WithFields("err", err.Error()).Error("Stop service failed")
+			logger.WithField("err", err.Error()).Error("Stop service failed")
 		}
 	}
 }

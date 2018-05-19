@@ -85,6 +85,10 @@ node {
     ci.container name:'pdfgen', context:'containers/pdfgen'
   }
 
+  stage('mysqldump') {
+    ci.container name:'mysqldump', context:'containers/mysqldump'
+  }
+
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://altipla-tools-artifacts"

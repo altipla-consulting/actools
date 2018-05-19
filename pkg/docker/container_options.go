@@ -179,6 +179,13 @@ func WithWorkdir(workdir string) ContainerOption {
 	}
 }
 
+func WithPersistence() ContainerOption {
+	return func(container *ContainerManager) error {
+		container.persistent = true
+		return nil
+	}
+}
+
 func hasConfig(path string) (bool, error) {
 	if _, err := os.Stat(path); err != nil {
 		if !os.IsNotExist(err) {

@@ -25,8 +25,10 @@ type ContainerManager struct {
 	ports        map[int64]int64
 
 	// userWorkdir will overwrite workdir if specified
-	workdir      string
+	workdir     string
 	userWorkdir string
+
+	persistent bool
 }
 
 func Container(name string, options ...ContainerOption) (*ContainerManager, error) {
@@ -49,6 +51,10 @@ func Container(name string, options ...ContainerOption) (*ContainerManager, erro
 	}
 
 	return container, nil
+}
+
+func (container *ContainerManager) String() string {
+	return container.name
 }
 
 func (container *ContainerManager) Exists() (bool, error) {
@@ -104,7 +110,7 @@ func (container *ContainerManager) Start(args ...string) error {
 		return errors.Trace(err)
 	} else if !exists {
 		if err := container.Create(args...); err != nil {
-		  return errors.Trace(err)
+			return errors.Trace(err)
 		}
 	}
 
@@ -136,15 +142,15 @@ func (container *ContainerManager) Remove() error {
 }
 
 func (container *ContainerManager) Run(args ...string) error {
-	sh, err := buildCommand("run", args...)
+	sh, err := container.buildCommand("run", args...)
 	if err != nil {
-	  return errors.Trace(err)
+		return errors.Trace(err)
 	}
 
 	return errors.Trace(run.InteractiveWithOutput("docker", sh...))
 }
 
-func buildCommand(operation string, args ...string) ([]string, error) {
+func (container *ContainerManager) buildCommand(operation string, args ...string) ([]string, error) {
 	// Creamos la red del contenedor si no existía previamente
 	if container.network != nil {
 		if err := container.network.CreateIfNotExists(); err != nil {
@@ -170,8 +176,11 @@ func buildCommand(operation string, args ...string) ([]string, error) {
 	// Nombre del contenedor.
 	sh = append(sh, "--name", container.name)
 
-	// Los contenedores que ejecutamos siempre son transitorios.
-	sh = append(sh, "--rm")
+	// Los contenedores que ejecutamos normalmente son transitorios, excepto los
+	// servicios que conservan su estado hasta que son explícitamente reiniciados.
+	if !container.persistent {
+		sh = append(sh, "--rm")
+	}
 
 	// Cambiamos el usuario de dentro para que coincida con el de fuera y los
 	// archivos escritos mantengan los permisos iguales en todas partes. En Windows
@@ -228,14 +237,14 @@ func buildCommand(operation string, args ...string) ([]string, error) {
 
 func (container *ContainerManager) Create(args ...string) error {
 	if exists, err := container.Exists(); err != nil {
-	  return errors.Trace(err)
+		return errors.Trace(err)
 	} else if exists {
 		return nil
 	}
 
-	sh, err := buildCommand("create", args...)
+	sh, err := container.buildCommand("create", args...)
 	if err != nil {
-	  return errors.Trace(err)
+		return errors.Trace(err)
 	}
 
 	return errors.Trace(run.Interactive("docker", sh...))
