@@ -23,7 +23,10 @@ type ContainerManager struct {
 	env          map[string]string
 	volumes      map[string]string
 	ports        map[int64]int64
+
+	// userWorkdir will overwrite workdir if specified
 	workdir      string
+	userWorkdir string
 }
 
 func Container(name string, options ...ContainerOption) (*ContainerManager, error) {
@@ -39,6 +42,10 @@ func Container(name string, options ...ContainerOption) (*ContainerManager, erro
 		if err := option(container); err != nil {
 			return nil, errors.Trace(err)
 		}
+	}
+
+	if container.userWorkdir != "" {
+		container.workdir = container.userWorkdir
 	}
 
 	return container, nil
@@ -83,15 +90,25 @@ func (container *ContainerManager) Running() (bool, error) {
 }
 
 func (container *ContainerManager) Stop() error {
-	exists, err := container.Exists()
-	if err != nil {
+	if exists, err := container.Exists(); err != nil {
 		return errors.Trace(err)
-	}
-	if !exists {
+	} else if !exists {
 		return nil
 	}
 
 	return errors.Trace(run.Interactive("docker", "stop", container.name))
+}
+
+func (container *ContainerManager) Start(args ...string) error {
+	if exists, err := container.Exists(); err != nil {
+		return errors.Trace(err)
+	} else if !exists {
+		if err := container.Create(args...); err != nil {
+		  return errors.Trace(err)
+		}
+	}
+
+	return errors.Trace(run.Interactive("docker", "start", container.name))
 }
 
 func (container *ContainerManager) Kill() error {
@@ -119,22 +136,31 @@ func (container *ContainerManager) Remove() error {
 }
 
 func (container *ContainerManager) Run(args ...string) error {
+	sh, err := buildCommand("run", args...)
+	if err != nil {
+	  return errors.Trace(err)
+	}
+
+	return errors.Trace(run.InteractiveWithOutput("docker", sh...))
+}
+
+func buildCommand(operation string, args ...string) ([]string, error) {
 	// Creamos la red del contenedor si no existía previamente
 	if container.network != nil {
 		if err := container.network.CreateIfNotExists(); err != nil {
-			return errors.Trace(err)
+			return nil, errors.Trace(err)
 		}
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return errors.Trace(err)
+		return nil, errors.Trace(err)
 	}
 
 	var sh []string
 
 	// Ejecutamos interactivamente.
-	sh = append(sh, "run", "-i")
+	sh = append(sh, operation, "-i")
 
 	// La terminal solo la podemos activar en local cuando ejecutamos comandos directamente.
 	if !container.noTTY {
@@ -197,5 +223,20 @@ func (container *ContainerManager) Run(args ...string) error {
 	// Añadimos cualquier adicional que recibamos en el momento.
 	sh = append(sh, args...)
 
-	return errors.Trace(run.InteractiveWithOutput("docker", sh...))
+	return sh, nil
+}
+
+func (container *ContainerManager) Create(args ...string) error {
+	if exists, err := container.Exists(); err != nil {
+	  return errors.Trace(err)
+	} else if exists {
+		return nil
+	}
+
+	sh, err := buildCommand("create", args...)
+	if err != nil {
+	  return errors.Trace(err)
+	}
+
+	return errors.Trace(run.Interactive("docker", sh...))
 }

@@ -19,7 +19,10 @@ var containers = []Container{
 	{
 		Image:   "cloudsqlproxy",
 		Tools:   []string{},
-		Options: []docker.ContainerOption{},
+		Options: []docker.ContainerOption{
+			docker.WithLocalUser(),
+			docker.ShareGcloudConfig(),
+		},
 	},
 	{
 		Image: "dev-go",
@@ -34,7 +37,10 @@ var containers = []Container{
 	{
 		Image:   "dev-gulp",
 		Tools:   []string{},
-		Options: []docker.ContainerOption{},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithLocalUser(),
+		},
 	},
 	{
 		Image: "gcloud",
@@ -159,4 +165,14 @@ func Images() []string {
 
 func List() []Container {
 	return containers
+}
+
+func FindImage(image string) (Container, error) {
+	for _, container := range containers {
+		if container.Image == image {
+			return container, nil
+		}
+	}
+
+	return Container{}, errors.NotFoundf("container: %s", image)
 }

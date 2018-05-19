@@ -8,4 +8,4 @@ RUN apt-get update && \
 RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O /opt/cloudsqlproxy && \
     chmod +x /opt/cloudsqlproxy
 
-CMD ["/opt/cloudsqlproxy"]
+ENTRYPOINT ["/opt/cloudsqlproxy"]

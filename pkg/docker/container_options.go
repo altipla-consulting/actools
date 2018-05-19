@@ -172,6 +172,13 @@ func WithSharedGopath() ContainerOption {
 	}
 }
 
+func WithWorkdir(workdir string) ContainerOption {
+	return func(container *ContainerManager) error {
+		container.userWorkdir = workdir
+		return nil
+	}
+}
+
 func hasConfig(path string) (bool, error) {
 	if _, err := os.Stat(path); err != nil {
 		if !os.IsNotExist(err) {

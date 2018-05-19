@@ -15,6 +15,16 @@ type Config struct {
 	Tools    map[string]*Tool    `yaml:"tools"`
 }
 
+func (cnf *Config) IsService(name string) bool {
+	_, ok := cnf.Services[name]
+	return ok
+}
+
+func (cnf *Config) IsTool(name string) bool {
+	_, ok := cnf.Tools[name]
+	return ok
+}
+
 type Service struct {
 	Type    string            `yaml:"type"`
 	Deps    []string          `yaml:"deps"`

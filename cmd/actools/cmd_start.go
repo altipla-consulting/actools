@@ -33,221 +33,160 @@ var CmdStart = &cobra.Command{
 			return errors.NotFoundf("actools.yml")
 		}
 
-		root, err := os.Getwd()
+		services, tools, err := resolveDeps(cnf, args)
 		if err != nil {
-			return errors.Trace(err)
+		  return errors.Trace(err)
 		}
 
-		network := docker.Network(fmt.Sprintf("%s", filepath.Base(root)))
-		if err := network.CreateIfNotExists(); err != nil {
-			return errors.Trace(err)
-		}
+		for _, tool := range tools {
+			containerDesc := containers.FindImage(cnf.Tools[tool].Container)
 
-		start := []string{}
-		foreground := []string{}
-		for _, arg := range args {
-			service, ok := cnf.Services[arg]
-			if ok {
-				start = append(start, service.Deps...)
-				start = append(start, arg)
-				foreground = append(foreground, arg)
-				continue
+			options := []docker.ContainerOption{
+				docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
+				docker.WithDefaultNetwork(),
+			}
+			options = append(options, containerDesc.Options...)
+
+			for _, port := range cnf.Tools[tool].Ports {
+				parts := strings.Split(port, ":")
+				if len(parts) != 2 {
+					return errors.NotValidf("ports of tool %s", tool)
+				}
+
+				source, err := strconv.ParseInt(parts[0], 10, 64)
+				if err != nil {
+				  return errors.NewNotValid(err)
+				}
+
+				inside, err := strconv.ParseInt(parts[1], 10, 64)
+				if err != nil {
+				  return errors.NewNotValid(err)
+				}
+
+				options = append(options, docker.WithPort(source, inside))
 			}
 
-			tool, ok := cnf.Tools[arg]
-			if ok {
-				start = append(start, tool.Deps...)
-				start = append(start, arg)
-				continue
+			for _, volumes := range cnf.Tools[tool].Volumes {
+				parts := strings.Split(port, ":")
+				if len(parts) != 2 {
+					return errors.NotValidf("volumes of tool %s", tool)
+				}
+
+				options = append(options, docker.WithVolume(parts[0], parts[1]))
 			}
 
-			return errors.NotFoundf("service %s", arg)
-		}
-
-		start = collections.UniqueStrings(start)
-
-		wg := new(sync.WaitGroup)
-		notifyExit := make(chan struct{})
-		for _, arg := range start {
-			containerTODO, err := docker.Container(arg)
+			container, err := docker.Container(fmt.Sprintf("tool-%s", tool), options...)
 			if err != nil {
 				return errors.Trace(err)
 			}
 
-			name := fmt.Sprintf("%s_%s", filepath.Base(root), arg)
-			hasContainer, err := containerTODO.Exists()
+			log.WithField("service", tool).Info("Start service")
+			if err := container.Start(cnf.Tools[tool].Args...); err != nil {
+			  return errors.Trace(err)
+			}
+		}
+
+		watcher := docker.NewWatcher()
+		for _, service := range services {
+			containerDesc := containers.FindImage(fmt.Sprintf("dev-%s", cnf.Services[service].Container))
+
+			options := []docker.ContainerOption{
+				docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
+				docker.WithDefaultNetwork(),
+				docker.WithWorkdir(fmt.Sprintf("/workspace/%s", cnf.Services[service].Workdir))
+			}
+			options = append(options, containerDesc.Options...)
+
+			for _, port := range cnf.Services[service].Ports {
+				parts := strings.Split(port, ":")
+				if len(parts) != 2 {
+					return errors.NotValidf("ports of service %s", service)
+				}
+
+				source, err := strconv.ParseInt(parts[0], 10, 64)
+				if err != nil {
+				  return errors.NewNotValid(err)
+				}
+
+				inside, err := strconv.ParseInt(parts[1], 10, 64)
+				if err != nil {
+				  return errors.NewNotValid(err)
+				}
+
+				options = append(options, docker.WithPort(source, inside))
+			}
+
+			for _, volumes := range cnf.Services[service].Volumes {
+				parts := strings.Split(port, ":")
+				if len(parts) != 2 {
+					return errors.NotValidf("volumes of service %s", service)
+				}
+
+				options = append(options, docker.WithVolume(parts[0], parts[1]))
+			}
+
+			for k, v := range env {
+				options = append(options, docker.WithEnv(k, v))
+			}
+
+			container, err := docker.Container(fmt.Sprintf("service-%s", service), options...)
 			if err != nil {
 				return errors.Trace(err)
 			}
 
-			var container string
-			containerArgs := []string{}
-			containerCnf := &containerConfig{
-				Name:         name,
-				Persistent:   true,
-				CreateOnly:   true,
-				NetworkAlias: []string{arg},
-			}
-
-			service, ok := cnf.Services[arg]
-			if ok {
-				container = fmt.Sprintf("dev-%s", service.Type)
-
-				containerCnf.Ports = service.Ports
-				containerCnf.Volumes = service.Volumes
-				containerCnf.Env = service.Env
-				containerCnf.ShareWorkspace = true
-				containerCnf.LocalUser = true
-				containerCnf.ShareGcloudConfig = true
-
-				switch service.Type {
-				case "go":
-					containerCnf.ConfigureGopath = true
-					containerArgs = append(containerArgs, "rerun", filepath.Join(cnf.Project, service.Workdir, "cmd", arg))
-					containerCnf.Workdir = fmt.Sprintf("/%s", service.Workdir)
-
-				case "gulp":
-					containerCnf.Workdir = fmt.Sprintf("/workspace/%s", service.Workdir)
-				}
-			}
-
-			tool, ok := cnf.Tools[arg]
-			if ok {
-				container = tool.Container
-
-				containerCnf.Ports = tool.Ports
-				containerCnf.Volumes = tool.Volumes
-
-				switch tool.Container {
-				case "cloudsqlproxy":
-					containerCnf.LocalUser = true
-					containerCnf.ShareGcloudConfig = true
-					containerArgs = append(containerArgs, "/opt/cloudsqlproxy")
-					containerArgs = append(containerArgs, tool.Args...)
-				}
-			}
-
-			log.WithFields(log.Fields{
-				"service": arg,
-				"is-new":  !hasContainer,
-			}).Info("Start service")
-
-			if !hasContainer {
-				if err := runContainer(container, containerCnf, containerArgs...); err != nil {
-					return errors.Annotatef(err, "service %s", arg)
-				}
-			}
-
-			if collections.HasString(foreground, arg) {
-				wg.Add(1)
-				go RunForeground(wg, notifyExit, arg, name)
-			} else {
-				if err := runInteractiveDebugOutput("docker", "start", name); err != nil {
-					return errors.Trace(err)
-				}
+			if err := watcher.Run(service, container); err != nil {
+			  return errors.Trace(err)
 			}
 		}
 
-		c := make(chan os.Signal)
-		signal.Notify(c, os.Interrupt)
-		go func() {
-			for range c {
-				// Newline to jump the next log we emit.
-				fmt.Println()
+		// switch service.Type {
+		// case "go":
+		// 	containerArgs = append(containerArgs, "rerun", filepath.Join(cnf.Project, service.Workdir, "cmd", arg))
+		// }
 
-				// Enter a loop until all the containers exits and the main closes the whole app directly.
-				for {
-					notifyExit <- struct{}{}
-				}
-			}
-		}()
-
-		// Wait for all running services to finish.
-		wg.Wait()
+		if err := watcher.Wait(); err != nil {
+		  return errors.Trace(err)
+		}
 
 		return nil
 	},
 }
 
-type PrefixFormatter struct {
-	t           *log.TextFormatter
-	serviceName string
-}
-
-func (f *PrefixFormatter) Format(entry *log.Entry) ([]byte, error) {
-	entry.Message = fmt.Sprintf("(%s) %s", f.serviceName, entry.Message)
-
-	return f.t.Format(entry)
-}
-
-func newPrefixFormatter(serviceName string) *PrefixFormatter {
-	return &PrefixFormatter{
-		t:           new(log.TextFormatter),
-		serviceName: serviceName,
+func resolveDeps(cnf *Config, args []string) ([]string, []string, error) {
+	if len(args) == 0 {
+		return nil, nil, nil
 	}
-}
 
-func RunForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName, containerName string) {
-	defer wg.Done()
+	services := []string{}
+	tools := []string{}
+	for _, arg := range args {
+		if cnf.IsService(arg) {
+			services = append(services, arg)
 
-	logger := log.WithFields(log.Fields{"service": serviceName})
-
-	logger.Debug("Run foreground service")
-	notifyErr := make(chan error, 1)
-	go func() {
-		cmd := exec.Command("docker", "start", "-a", containerName)
-		cmd.Stdin = os.Stdin
-
-		loggerOut := log.New()
-		loggerOut.Formatter = newPrefixFormatter(serviceName)
-		loggerOut.SetLevel(log.StandardLogger().Level)
-		wout := &logrusWriter{loggerOut}
-		cmd.Stdout = wout
-
-		loggerErr := log.New()
-		loggerErr.Formatter = newPrefixFormatter(serviceName)
-		loggerErr.SetLevel(log.StandardLogger().Level)
-		werr := loggerErr.WriterLevel(log.DebugLevel)
-		defer werr.Close()
-		cmd.Stderr = werr
-
-		if err := cmd.Start(); err != nil {
-			notifyErr <- err
-			return
-		}
-		if err := cmd.Wait(); err != nil {
-			if err.Error() == "signal: interrupt" {
-				return
+			subservices, subtools, err := resolveDeps(cnf, cnf.Services[arg].Deps)
+			if err != nil {
+			  return nil, nil, errors.Trace(err)
 			}
-
-			notifyErr <- err
-			return
+			services = append(services, subservices...)
+			tools = append(tools, subtools...)
 		}
-	}()
 
-	select {
-	case err := <-notifyErr:
-		logger.WithFields(log.Fields{"err": err.Error()}).Error("Foreground service failed")
+		if cnf.IsTool(arg) {
+			tools = append(tools, arg)
 
-	case <-notifyExit:
-		logger.Info("Kill service")
-		if err := runInteractiveDebugOutput("docker", "kill", containerName); err != nil {
-			logger.WithFields(log.Fields{"err": err.Error()}).Error("Stop foreground service failed")
+			subservices, subtools, err := resolveDeps(cnf, cnf.Tools[arg].Deps)
+			if err != nil {
+			  return nil, nil, errors.Trace(err)
+			}
+			services = append(services, subservices...)
+			tools = append(tools, subtools...)
 		}
-	}
-}
 
-type logrusWriter struct {
-	logger *log.Logger
-}
-
-func (w *logrusWriter) Write(b []byte) (int, error) {
-	s := string(b)
-	s = strings.TrimSpace(s)
-	parts := strings.Split(s, "\r\n")
-	for _, part := range parts {
-		w.logger.Info(part)
+		return nil, nil, errors.NotFoundf("service %s", arg)
 	}
 
-	return len(b), nil
+	services = collections.UniqueStrings(services)
+	tools = collections.UniqueStrings(tools)
+
+	return services, tools, nil
 }
