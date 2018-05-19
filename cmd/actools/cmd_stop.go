@@ -42,8 +42,7 @@ var CmdStop = &cobra.Command{
 				return errors.Trace(err)
 			}
 
-			running, err := container.Running()
-			if err != nil {
+			if running, err := container.Running(); err != nil {
 				return errors.Trace(err)
 			} else if !running {
 				continue

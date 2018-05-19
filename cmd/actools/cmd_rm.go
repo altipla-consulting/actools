@@ -47,15 +47,13 @@ var CmdRm = &cobra.Command{
 				return errors.Trace(err)
 			}
 
-			exists, err := container.Exists()
-			if err != nil {
+			if exists, err := container.Exists(); err != nil {
 				return errors.Trace(err)
 			} else if !exists {
 				continue
 			}
 
-			running, err := container.Running()
-			if err != nil {
+			if running, err := container.Running(); err != nil {
 				return errors.Trace(err)
 			} else if running {
 				log.WithField("service", service).Info("Stop service")
