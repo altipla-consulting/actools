@@ -7,7 +7,7 @@ Build & dev container tools.
 ### Install
 
 ```shell
-curl https://storage.googleapis.com/altipla-tools-artifacts/actools > ~/bin/actools && chmod +x ~/bin/actools
+curl https://tools.altipla.consulting/bin/actools > ~/bin/actools && chmod +x ~/bin/actools
 ```
 
 
