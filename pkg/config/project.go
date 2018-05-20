@@ -21,15 +21,16 @@ type glideConfig struct {
 func init() {
 	// First source: the glide.yaml file with its package name
 	content, err := ioutil.ReadFile("glide.yaml")
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		log.Fatal(err)
-	}
-	glideCnf := new(glideConfig)
-	if err := yaml.Unmarshal(content, glideCnf); err != nil {
-		log.Fatal(err)
-	}
-	if glideCnf.Package != "." && glideCnf.Package != "" {
-		projectPackage = glideCnf.Package
+	} else if err == nil {
+		glideCnf := new(glideConfig)
+		if err := yaml.Unmarshal(content, glideCnf); err != nil {
+			log.Fatal(err)
+		}
+		if glideCnf.Package != "." && glideCnf.Package != "" {
+			projectPackage = glideCnf.Package
+		}
 	}
 
 	cnf, err := ReadConfig()
