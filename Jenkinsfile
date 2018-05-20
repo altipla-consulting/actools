@@ -25,8 +25,9 @@ node {
   }
 
   stage('actools') {
-    sh 'actools go install ./cmd/actools'
-    ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://tools.altipla.consulting/bin/actools"
+    sh "sed -i 's/dev/${ci.buildTag()}/g' pkg/config/version.go"
+    sh 'actools go build -o actools ./cmd/actools'
+    ci.gsutil "-h 'Cache-Control: no-cache' cp actools gs://tools.altipla.consulting/bin/actools"
   }
 
   stage('version manifest') {
