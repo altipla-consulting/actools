@@ -92,6 +92,10 @@ node {
   stage('actools') {
     sh 'actools go install ./cmd/actools'
     ci.gsutil "-h 'Cache-Control: no-cache' cp /root/.actools/cache-altipla-actools/bin/actools gs://tools.altipla.consulting/bin/actools"
-    sh 'env'
+  }
+
+  stage('version manifest') {
+    sh "echo ${ci.buildTag} > version"
+    ci.gsutil "-h 'Cache-Control: no-cache' cp version gs://tools.altipla.consulting/version-manifest/actools"
   }
 }
