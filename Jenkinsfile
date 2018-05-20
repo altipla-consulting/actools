@@ -30,7 +30,7 @@ node {
   }
 
   stage('version manifest') {
-    sh "echo ${ci.buildTag} > version"
+    sh "echo ${ci.buildTag()} > version"
     ci.gsutil "-h 'Cache-Control: no-cache' cp version gs://tools.altipla.consulting/version-manifest/actools"
   }
 }
