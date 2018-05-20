@@ -20,3 +20,7 @@ func Linux() bool {
 func Home() string {
 	return os.Getenv("HOME")
 }
+
+func Development() bool {
+	return Version == "dev"
+}
