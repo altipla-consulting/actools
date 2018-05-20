@@ -18,7 +18,7 @@ func init() {
 				Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
 				DisableFlagParsing:    true,
 				DisableFlagsInUseLine: true,
-				RunE: createEntrypoint(container, tool),
+				RunE: createToolEntrypoint(container, tool),
 			}
 			CmdRoot.AddCommand(CmdTool)
 
@@ -27,21 +27,22 @@ func init() {
 				Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
 				DisableFlagParsing:    true,
 				DisableFlagsInUseLine: true,
-				RunE: createEntrypoint(container, tool),
+				RunE: createToolEntrypoint(container, tool),
 			}
 			CmdDebug.AddCommand(CmdToolDebug)
 		}
 	}
 }
 
-func createEntrypoint(container containers.Container, tool string) func(cmd *cobra.Command, args []string) error {
+func createToolEntrypoint(containerDesc containers.Container, tool string) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		options := []docker.ContainerOption{
-			docker.WithImage(docker.Image(containers.Repo, container.Image, "latest")),
+			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
 			docker.WithDefaultNetwork(),
 		}
-		options = append(options, container.Options...)
-		container, err := docker.Container(fmt.Sprintf("tool-%s-%s", container.Image, tool), options...)
+		options = append(options, containerDesc.Options...)
+
+		container, err := docker.Container(fmt.Sprintf("tool-%s-%s", containerDesc.Image, tool), options...)
 		if err != nil {
 			return errors.Trace(err)
 		}
