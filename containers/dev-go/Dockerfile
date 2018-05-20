@@ -4,9 +4,10 @@ MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 ENV CACHE_BUST 1
 ENV GOPATH /gotools
-RUN go get -u github.com/skelterjohn/rerun
+RUN go get -u github.com/cortesi/modd/cmd/modd
 ENV GOPATH /go
 
+COPY run.sh /opt/run.sh
+
 ENV PATH $PATH:/gotools/bin
-WORKDIR /workspace
-CMD ["bash"]
+CMD ["/opt/run.sh"]

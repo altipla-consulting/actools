@@ -56,8 +56,8 @@ func runForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName str
 	notifyErr := make(chan error, 1)
 	go func() {
 		if err := container.Create(); err != nil {
-		  notifyErr <- err
-		  return
+			notifyErr <- err
+			return
 		}
 
 		cmd := exec.Command("docker", "start", "-a", container.String())

@@ -45,6 +45,7 @@ var CmdStart = &cobra.Command{
 				docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
 				docker.WithDefaultNetwork(),
 				docker.WithPersistence(),
+				docker.WithNetworkAlias(tool),
 			}
 			options = append(options, containerDesc.Options...)
 
@@ -99,6 +100,9 @@ var CmdStart = &cobra.Command{
 				docker.WithDefaultNetwork(),
 				docker.WithPersistence(),
 				docker.WithWorkdir(fmt.Sprintf("/workspace/%s", cnf.Services[service].Workdir)),
+				docker.WithNetworkAlias(service),
+				docker.WithEnv("PROJECT", cnf.Project),
+				docker.WithEnv("WORKDIR", cnf.Services[service].Workdir),
 			}
 			options = append(options, containerDesc.Options...)
 
@@ -141,11 +145,6 @@ var CmdStart = &cobra.Command{
 
 			watcher.Run(service, container)
 		}
-
-		// switch service.Type {
-		// case "go":
-		// 	containerArgs = append(containerArgs, "rerun", filepath.Join(cnf.Project, service.Workdir, "cmd", arg))
-		// }
 
 		watcher.Wait()
 
