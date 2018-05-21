@@ -33,12 +33,8 @@ func init() {
 		}
 	}
 
-	cnf, err := ReadConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if cnf != nil {
-		projectPackage = cnf.Project
+	if Settings.Project != "" {
+		projectPackage = Settings.Project
 	}
 
 	root, err := os.Getwd()

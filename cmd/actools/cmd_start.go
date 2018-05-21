@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/containers"
 	"github.com/altipla-consulting/actools/pkg/docker"
 )
@@ -22,21 +23,13 @@ var CmdStart = &cobra.Command{
 	Use:   "start",
 	Short: "Enciende un servicio de desarrollo",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cnf, err := ReadConfig()
-		if err != nil {
-			return errors.Trace(err)
-		}
-		if cnf == nil {
-			return errors.NotFoundf("actools.yml")
-		}
-
-		services, tools, err := resolveDeps(cnf, args)
+		services, tools, err := resolveDeps(args)
 		if err != nil {
 			return errors.Trace(err)
 		}
 
 		for _, tool := range tools {
-			containerDesc, err := containers.FindImage(cnf.Tools[tool].Container)
+			containerDesc, err := containers.FindImage(config.Settings.Tools[tool].Container)
 			if err != nil {
 				return errors.Trace(err)
 			}
@@ -49,7 +42,7 @@ var CmdStart = &cobra.Command{
 			}
 			options = append(options, containerDesc.Options...)
 
-			for _, port := range cnf.Tools[tool].Ports {
+			for _, port := range config.Settings.Tools[tool].Ports {
 				parts := strings.Split(port, ":")
 				if len(parts) != 2 {
 					return errors.NotValidf("ports of tool %s", tool)
@@ -68,7 +61,7 @@ var CmdStart = &cobra.Command{
 				options = append(options, docker.WithPort(source, inside))
 			}
 
-			for _, volume := range cnf.Tools[tool].Volumes {
+			for _, volume := range config.Settings.Tools[tool].Volumes {
 				parts := strings.Split(volume, ":")
 				if len(parts) != 2 {
 					return errors.NotValidf("volumes of tool %s", tool)
@@ -83,14 +76,14 @@ var CmdStart = &cobra.Command{
 			}
 
 			log.WithField("service", tool).Info("Start service")
-			if err := container.Start(cnf.Tools[tool].Args...); err != nil {
+			if err := container.Start(config.Settings.Tools[tool].Args...); err != nil {
 				return errors.Trace(err)
 			}
 		}
 
 		watcher := docker.NewWatcher()
 		for _, service := range services {
-			containerDesc, err := containers.FindImage(fmt.Sprintf("dev-%s", cnf.Services[service].Type))
+			containerDesc, err := containers.FindImage(fmt.Sprintf("dev-%s", config.Settings.Services[service].Type))
 			if err != nil {
 				return errors.Trace(err)
 			}
@@ -99,14 +92,14 @@ var CmdStart = &cobra.Command{
 				docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
 				docker.WithDefaultNetwork(),
 				docker.WithPersistence(),
-				docker.WithWorkdir(fmt.Sprintf("/workspace/%s", cnf.Services[service].Workdir)),
+				docker.WithWorkdir(fmt.Sprintf("/workspace/%s", config.Settings.Services[service].Workdir)),
 				docker.WithNetworkAlias(service),
-				docker.WithEnv("PROJECT", cnf.Project),
-				docker.WithEnv("WORKDIR", cnf.Services[service].Workdir),
+				docker.WithEnv("PROJECT", config.Settings.Project),
+				docker.WithEnv("WORKDIR", config.Settings.Services[service].Workdir),
 			}
 			options = append(options, containerDesc.Options...)
 
-			for _, port := range cnf.Services[service].Ports {
+			for _, port := range config.Settings.Services[service].Ports {
 				parts := strings.Split(port, ":")
 				if len(parts) != 2 {
 					return errors.NotValidf("ports of service %s", service)
@@ -125,7 +118,7 @@ var CmdStart = &cobra.Command{
 				options = append(options, docker.WithPort(source, inside))
 			}
 
-			for _, volume := range cnf.Services[service].Volumes {
+			for _, volume := range config.Settings.Services[service].Volumes {
 				parts := strings.Split(volume, ":")
 				if len(parts) != 2 {
 					return errors.NotValidf("volumes of service %s", service)
@@ -134,7 +127,7 @@ var CmdStart = &cobra.Command{
 				options = append(options, docker.WithVolume(parts[0], parts[1]))
 			}
 
-			for k, v := range cnf.Services[service].Env {
+			for k, v := range config.Settings.Services[service].Env {
 				options = append(options, docker.WithEnv(k, v))
 			}
 
@@ -152,7 +145,7 @@ var CmdStart = &cobra.Command{
 	},
 }
 
-func resolveDeps(cnf *Config, args []string) ([]string, []string, error) {
+func resolveDeps(args []string) ([]string, []string, error) {
 	if len(args) == 0 {
 		return nil, nil, nil
 	}
@@ -160,10 +153,10 @@ func resolveDeps(cnf *Config, args []string) ([]string, []string, error) {
 	services := []string{}
 	tools := []string{}
 	for _, arg := range args {
-		if cnf.IsService(arg) {
+		if config.Settings.IsService(arg) {
 			services = append(services, arg)
 
-			subservices, subtools, err := resolveDeps(cnf, cnf.Services[arg].Deps)
+			subservices, subtools, err := resolveDeps(config.Settings.Services[arg].Deps)
 			if err != nil {
 				return nil, nil, errors.Trace(err)
 			}
@@ -173,10 +166,10 @@ func resolveDeps(cnf *Config, args []string) ([]string, []string, error) {
 			continue
 		}
 
-		if cnf.IsTool(arg) {
+		if config.Settings.IsTool(arg) {
 			tools = append(tools, arg)
 
-			subservices, subtools, err := resolveDeps(cnf, cnf.Tools[arg].Deps)
+			subservices, subtools, err := resolveDeps(config.Settings.Tools[arg].Deps)
 			if err != nil {
 				return nil, nil, errors.Trace(err)
 			}

@@ -4,15 +4,42 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/juju/errors"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
+
+var Settings = new(Config)
+
+func init() {
+	content, err := ioutil.ReadFile("actools.yml")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return
+		}
+
+		log.Fatal(err)
+	}
+
+	if err := yaml.Unmarshal(content, &Settings); err != nil {
+		log.Fatal(err)
+	}
+}
 
 type Config struct {
 	Project string `yaml:"project"`
 
 	Services map[string]*Service `yaml:"services"`
 	Tools    map[string]*Tool    `yaml:"tools"`
+}
+
+func (cnf *Config) IsService(name string) bool {
+	_, ok := cnf.Services[name]
+	return ok
+}
+
+func (cnf *Config) IsTool(name string) bool {
+	_, ok := cnf.Tools[name]
+	return ok
 }
 
 type Service struct {
@@ -30,27 +57,4 @@ type Tool struct {
 	Ports     []string `yaml:"ports"`
 	Volumes   []string `yaml:"volumes"`
 	Args      []string `yaml:"args"`
-}
-
-func ReadConfig() (*Config, error) {
-	f, err := os.Open("actools.yml")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-
-		return nil, errors.Trace(err)
-	}
-
-	content, err := ioutil.ReadAll(f)
-	if err != nil {
-		return nil, errors.Trace(err)
-	}
-
-	cnf := new(Config)
-	if err := yaml.Unmarshal(content, cnf); err != nil {
-		return nil, errors.Trace(err)
-	}
-
-	return cnf, nil
 }
