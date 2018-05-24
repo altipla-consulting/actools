@@ -1,5 +1,5 @@
 
-FROM golang:1.8
+FROM golang:1.10
 MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 ENV CACHE_BUST 1
