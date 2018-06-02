@@ -45,6 +45,14 @@ var containers = []Container{
 		},
 	},
 	{
+		Image: "dev-node",
+		Tools: []string{},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithLocalUser(),
+		},
+	},
+	{
 		Image: "gcloud",
 		Tools: []string{"gcloud", "gsutil", "kubectl"},
 		Options: []docker.ContainerOption{

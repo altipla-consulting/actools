@@ -95,3 +95,8 @@ services:
     image: eu.gcr.io/altipla-tools/mysqldump:latest
     build:
       context: containers/mysqldump
+
+  dev-node:
+    image: eu.gcr.io/altipla-tools/dev-node:latest
+    build:
+      context: containers/dev-node
