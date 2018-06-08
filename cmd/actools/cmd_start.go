@@ -101,6 +101,7 @@ func startCommand(args []string) error {
 			docker.WithNetworkAlias(service),
 			docker.WithEnv("PROJECT", config.Settings.Project),
 			docker.WithEnv("WORKDIR", config.Settings.Services[service].Workdir),
+			docker.WithEnv("SERVICE", service),
 		}
 		options = append(options, containerDesc.Options...)
 

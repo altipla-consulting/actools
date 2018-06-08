@@ -2,7 +2,11 @@
 
 set -eu
 
-APP=$(basename $WORKDIR)
+if [[ -z $WORKDIR ]]; then
+  APP=$SERVICE
+else
+  APP=$(basename $WORKDIR)
+fi
 
 cd /go/src/$PROJECT/$WORKDIR
 
