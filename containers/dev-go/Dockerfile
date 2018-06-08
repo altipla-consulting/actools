@@ -7,6 +7,9 @@ ENV GOPATH /gotools
 RUN go get -u github.com/cortesi/modd/cmd/modd
 ENV GOPATH /go
 
+RUN mkdir /.cache && \
+    chmod 0777 /.cache
+
 COPY run.sh /opt/run.sh
 
 ENV PATH $PATH:/gotools/bin
