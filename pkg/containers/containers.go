@@ -2,7 +2,9 @@ package containers
 
 import (
 	"github.com/juju/errors"
+	"path/filepath"
 
+	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
@@ -34,6 +36,7 @@ var containers = []Container{
 			docker.WithLocalUser(),
 			docker.WithSharedGopath(),
 			docker.WithSharedGcloud(),
+			docker.WithVolume(filepath.Join(config.Home(), ".actools/go-cache"), "/.cache"),
 		},
 	},
 	{
@@ -79,6 +82,7 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
 			docker.WithSharedGopath(),
+			docker.WithVolume(filepath.Join(config.Home(), ".actools/go-cache"), "/.cache"),
 		},
 	},
 	{
