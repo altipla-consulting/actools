@@ -159,6 +159,12 @@ func WithSharedGopath() ContainerOption {
 				return errors.Trace(err)
 			}
 
+			cachePkg := fmt.Sprintf("%s/.actools/cache-%s/pkg", config.Home(), config.ProjectName())
+			container.volumes[cachePkg] = "/.cache"
+			if err := os.MkdirAll(cachePkg, 0777); err != nil {
+				return errors.Trace(err)
+			}
+
 			wd, err := os.Getwd()
 			if err != nil {
 				return errors.Trace(err)
