@@ -32,7 +32,7 @@ var CmdRun = &cobra.Command{
 func createRunEntrypoint(containerDesc containers.Container) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		options := []docker.ContainerOption{
-			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
+			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
 			docker.WithDefaultNetwork(),
 		}
 		options = append(options, containerDesc.Options...)

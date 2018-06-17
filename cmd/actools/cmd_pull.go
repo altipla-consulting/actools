@@ -22,7 +22,7 @@ var CmdPull = &cobra.Command{
 		for _, image := range containers.Images() {
 			log.WithField("image", image).Info("Download image")
 
-			image := docker.Image("eu.gcr.io", fmt.Sprintf("altipla-tools/%s", image), "latest")
+			image := docker.Image("eu.gcr.io", fmt.Sprintf("altipla-tools/%s", image))
 			if err := image.Pull(); err != nil {
 				return errors.Trace(err)
 			}

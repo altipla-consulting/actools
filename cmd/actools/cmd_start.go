@@ -40,7 +40,7 @@ func startCommand(args []string) error {
 		}
 
 		options := []docker.ContainerOption{
-			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
+			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
 			docker.WithDefaultNetwork(),
 			docker.WithPersistence(),
 			docker.WithNetworkAlias(tool),
@@ -94,7 +94,7 @@ func startCommand(args []string) error {
 		}
 
 		options := []docker.ContainerOption{
-			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image, "latest")),
+			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
 			docker.WithDefaultNetwork(),
 			docker.WithPersistence(),
 			docker.WithWorkdir(fmt.Sprintf("/workspace/%s", config.Settings.Services[service].Workdir)),
