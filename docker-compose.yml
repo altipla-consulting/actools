@@ -26,6 +26,11 @@ services:
     build:
       context: containers/rambler
 
+  statik:
+    image: eu.gcr.io/altipla-tools/statik:latest
+    build:
+      context: containers/statik
+
   gcloud:
     image: eu.gcr.io/altipla-tools/gcloud:latest
     build:
