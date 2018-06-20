@@ -10,4 +10,5 @@ ENV GOPATH /go
 COPY run.sh /opt/run.sh
 
 ENV PATH $PATH:/gotools/bin
+
 CMD ["/opt/run.sh"]

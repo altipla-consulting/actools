@@ -4,4 +4,6 @@ MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 RUN npm install -g nodemon
 
-CMD ["nodemon"]
+COPY run.sh /opt/run.sh
+
+CMD ["/opt/run.sh"]
