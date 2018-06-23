@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -16,22 +19,23 @@ import (
 	"github.com/altipla-consulting/actools/pkg/run"
 )
 
-var k8sfile, dockerfile string
+var k8sDeployment, k8sConfigMap, dockerfile string
 var repo, container string
 
 func init() {
 	CmdRoot.AddCommand(CmdBuild)
-	CmdBuild.PersistentFlags().StringVarP(&k8sfile, "kubernetes", "", "", "Deployment de Kubernetes para el despliegue")
+	CmdBuild.PersistentFlags().StringVarP(&k8sDeployment, "deployment", "", "", "Deployment de Kubernetes para el despliegue")
 	CmdBuild.PersistentFlags().StringVarP(&dockerfile, "dockerfile", "", "", "Dockerfile para la construcción")
 	CmdBuild.PersistentFlags().StringVarP(&repo, "repo", "", "", "Repositorio para el despliegue")
 	CmdBuild.PersistentFlags().StringVarP(&container, "name", "", "", "Nombre de la imagen")
+	CmdBuild.PersistentFlags().StringVarP(&k8sConfigMap, "configmap", "", "", "ConfigMap de Kubernetes asociado a la aplicación")
 }
 
 var CmdBuild = &cobra.Command{
 	Use:   "build",
 	Short: "Construye una imagen y la despliega en producción si ha cambiado.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if k8sfile == "" || dockerfile == "" || repo == "" || container == "" {
+		if k8sDeployment == "" || dockerfile == "" || repo == "" || container == "" {
 			return errors.NotValidf("arguments required")
 		}
 
@@ -50,10 +54,17 @@ var CmdBuild = &cobra.Command{
 			return errors.Trace(err)
 		}
 
-		if cache.Containers[container] != version {
+		cm, err := getConfigMapHash()
+		if err != nil {
+			return errors.Trace(err)
+		}
+
+		cacheTag := fmt.Sprintf("%s::%s", version, cm)
+		if cache.Containers[container] != cacheTag {
 			log.WithFields(log.Fields{
-				"cached": cache.Containers[container],
-				"new":    version,
+				"cached":    cache.Containers[container],
+				"new":       version,
+				"configmap": cm,
 			}).Info("Version changed, pushing to production")
 
 			if err := image.Push(version); err != nil {
@@ -63,7 +74,7 @@ var CmdBuild = &cobra.Command{
 				return errors.Trace(err)
 			}
 
-			content, err := ioutil.ReadFile(k8sfile)
+			content, err := ioutil.ReadFile(k8sDeployment)
 			if err != nil {
 				return errors.Trace(err)
 			}
@@ -74,7 +85,13 @@ var CmdBuild = &cobra.Command{
 			defer f.Close()
 			defer os.Remove(f.Name())
 
+			cm, err := getConfigMapHash()
+			if err != nil {
+				return errors.Trace(err)
+			}
+
 			content = bytes.Replace(content, []byte("latest"), []byte(version), -1)
+			content = bytes.Replace(content, []byte("cmversion"), []byte(cm), -1)
 
 			if _, err := f.Write(content); err != nil {
 				return errors.Trace(err)
@@ -84,7 +101,7 @@ var CmdBuild = &cobra.Command{
 				return errors.Trace(err)
 			}
 
-			cache.Containers[container] = version
+			cache.Containers[container] = cacheTag
 			if err := cache.Save(); err != nil {
 				return errors.Trace(err)
 			}
@@ -133,4 +150,23 @@ func getBuildCache() (*buildCache, error) {
 	}
 
 	return cache, nil
+}
+
+func getConfigMapHash() (string, error) {
+	if k8sConfigMap == "" {
+		return "", nil
+	}
+
+	f, err := os.Open(k8sConfigMap)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Fatal(err)
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
