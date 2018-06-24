@@ -13,34 +13,60 @@ import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/docker"
 	"github.com/altipla-consulting/actools/pkg/run"
 )
 
-var k8sDeployment, k8sConfigMap, dockerfile string
-var repo, container string
-
 func init() {
 	CmdRoot.AddCommand(CmdBuild)
-	CmdBuild.PersistentFlags().StringVarP(&k8sDeployment, "deployment", "", "", "Deployment de Kubernetes para el despliegue")
-	CmdBuild.PersistentFlags().StringVarP(&dockerfile, "dockerfile", "", "", "Dockerfile para la construcción")
-	CmdBuild.PersistentFlags().StringVarP(&repo, "repo", "", "", "Repositorio para el despliegue")
-	CmdBuild.PersistentFlags().StringVarP(&container, "name", "", "", "Nombre de la imagen")
-	CmdBuild.PersistentFlags().StringVarP(&k8sConfigMap, "configmap", "", "", "ConfigMap de Kubernetes asociado a la aplicación")
+}
+
+type rootSettings struct {
+	Build   buildSettings   `yaml:"build"`
+	Release releaseSettings `yaml:"release"`
+}
+
+func (settings rootSettings) Valid() bool {
+	return settings.Build.Dockerfile != "" && settings.Build.Repo != "" && settings.Build.Project != "" && settings.Build.Name != "" && settings.Release.Deployment != ""
+}
+
+type buildSettings struct {
+	Dockerfile string `yaml:"dockerfile"`
+	Repo       string `yaml:"repo"`
+	Project    string `yaml:"project"`
+	Name       string `yaml:"name"`
+}
+
+type releaseSettings struct {
+	Deployment string `yaml:"deployment"`
+	ConfigMap  string `yaml:"configmap"`
 }
 
 var CmdBuild = &cobra.Command{
 	Use:   "build",
 	Short: "Construye una imagen y la despliega en producción si ha cambiado.",
+	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if k8sDeployment == "" || dockerfile == "" || repo == "" || container == "" {
-			return errors.NotValidf("arguments required")
+		content, err := ioutil.ReadFile(args[0])
+		if err != nil {
+			return errors.Trace(err)
 		}
 
-		image := docker.Image(repo, container)
-		if err := image.Build(".", dockerfile); err != nil {
+		settings := rootSettings{}
+		if err := yaml.Unmarshal(content, &settings); err != nil {
+			return errors.Trace(err)
+		}
+
+		if !settings.Valid() {
+			return errors.NotValidf("settings")
+		}
+
+		container := fmt.Sprintf("%s/%s", settings.Build.Project, settings.Build.Name)
+		image := docker.Image(settings.Build.Repo, container)
+		if err := image.Build(".", settings.Build.Dockerfile); err != nil {
 			return errors.Trace(err)
 		}
 
@@ -54,7 +80,7 @@ var CmdBuild = &cobra.Command{
 			return errors.Trace(err)
 		}
 
-		cm, err := getConfigMapHash()
+		cm, err := getConfigMapHash(settings)
 		if err != nil {
 			return errors.Trace(err)
 		}
@@ -74,7 +100,7 @@ var CmdBuild = &cobra.Command{
 				return errors.Trace(err)
 			}
 
-			content, err := ioutil.ReadFile(k8sDeployment)
+			content, err := ioutil.ReadFile(settings.Release.Deployment)
 			if err != nil {
 				return errors.Trace(err)
 			}
@@ -84,11 +110,6 @@ var CmdBuild = &cobra.Command{
 			}
 			defer f.Close()
 			defer os.Remove(f.Name())
-
-			cm, err := getConfigMapHash()
-			if err != nil {
-				return errors.Trace(err)
-			}
 
 			content = bytes.Replace(content, []byte("latest"), []byte(version), -1)
 			content = bytes.Replace(content, []byte("cmversion"), []byte(cm), -1)
@@ -152,12 +173,12 @@ func getBuildCache() (*buildCache, error) {
 	return cache, nil
 }
 
-func getConfigMapHash() (string, error) {
-	if k8sConfigMap == "" {
+func getConfigMapHash(settings rootSettings) (string, error) {
+	if settings.Release.ConfigMap == "" {
 		return "", nil
 	}
 
-	f, err := os.Open(k8sConfigMap)
+	f, err := os.Open(settings.Release.ConfigMap)
 	if err != nil {
 		log.Fatal(err)
 	}
