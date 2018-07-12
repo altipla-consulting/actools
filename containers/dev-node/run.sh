@@ -4,4 +4,4 @@ set -eu
 
 cd /workspace/$WORKDIR
 
-exec nodemon
+exec nodemon src/index.js
