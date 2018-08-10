@@ -42,6 +42,7 @@ type buildSettings struct {
 
 type releaseSettings struct {
 	Deployment string `yaml:"deployment"`
+	Service    string `yaml:"service"`
 	ConfigMap  string `yaml:"configmap"`
 }
 
@@ -120,6 +121,12 @@ var CmdBuild = &cobra.Command{
 
 			if err := run.InteractiveWithOutput("kubectl", "apply", "-f", f.Name()); err != nil {
 				return errors.Trace(err)
+			}
+
+			if settings.Release.Service != "" {
+				if err := run.InteractiveWithOutput("kubectl", "apply", "-f", settings.Release.Service); err != nil {
+					return errors.Trace(err)
+				}
 			}
 
 			cache.Containers[container] = cacheTag
