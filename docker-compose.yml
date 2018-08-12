@@ -105,3 +105,8 @@ services:
     image: eu.gcr.io/altipla-tools/dev-node:latest
     build:
       context: containers/dev-node
+
+  jsonnet:
+    image: eu.gcr.io/altipla-tools/jsonnet:latest
+    build:
+      context: containers/jsonnet

@@ -178,6 +178,16 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 		},
 	},
+	{
+		Image: "jsonnet",
+		Tools: []string{"kubecfg", "jsonnet"},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithLocalUser(),
+			docker.WithSharedSSHSocket(),
+			docker.WithSharedGcloud(),
+		},
+	},
 }
 
 func Images() []string {
