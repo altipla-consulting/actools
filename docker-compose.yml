@@ -110,3 +110,8 @@ services:
     image: eu.gcr.io/altipla-tools/jsonnet:latest
     build:
       context: containers/jsonnet
+
+  migrator:
+    image: eu.gcr.io/altipla-tools/migrator:latest
+    build:
+      context: containers/migrator

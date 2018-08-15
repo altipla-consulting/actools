@@ -188,6 +188,13 @@ var containers = []Container{
 			docker.WithSharedGcloud(),
 		},
 	},
+	{
+		Image: "migrator",
+		Tools: []string{"migrator", "init-migrator"},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+		},
+	},
 }
 
 func Images() []string {
