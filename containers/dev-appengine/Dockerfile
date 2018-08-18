@@ -1,6 +1,12 @@
 
 FROM google/cloud-sdk:latest
-MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
+
+RUN mkdir /opt/local && \
+    chmod 0777 /opt/local
+
+COPY run.sh /opt/run.sh
+
+ENV GOPATH /go
 
 WORKDIR /workspace
-CMD ["dev_appserver.py", "--datastore_path", "/home/local/datastore", "--host", "0.0.0.0", "--admin_host", "0.0.0.0", "--port", "8080", "app.yaml"]
+CMD ["/opt/run.sh"]
