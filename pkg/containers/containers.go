@@ -52,6 +52,7 @@ var containers = []Container{
 			docker.WithLocalUser(),
 			docker.WithSharedSSHSocket(),
 			docker.WithSharedGcloud(),
+			docker.WithSharedGopath(),
 		},
 	},
 	{
