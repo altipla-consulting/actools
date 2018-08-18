@@ -45,6 +45,16 @@ var containers = []Container{
 		},
 	},
 	{
+		Image: "dev-appengine",
+		Tools: []string{},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithLocalUser(),
+			docker.WithSharedSSHSocket(),
+			docker.WithSharedGcloud(),
+		},
+	},
+	{
 		Image: "dev-node",
 		Tools: []string{},
 		Options: []docker.ContainerOption{

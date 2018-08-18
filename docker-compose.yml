@@ -115,3 +115,8 @@ services:
     image: eu.gcr.io/altipla-tools/migrator:latest
     build:
       context: containers/migrator
+
+  dev-appengine:
+    image: eu.gcr.io/altipla-tools/dev-appengine:latest
+    build:
+      context: containers/dev-appengine
