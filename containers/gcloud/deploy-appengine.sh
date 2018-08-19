@@ -3,6 +3,6 @@
 set -eu
 
 mkdir -p /go/src/$(dirname $PROJECT)
-ln -s /go/src/$PROJECT /workspace
+ln -s /workspace /go/src/$PROJECT
 
 gcloud app deploy $*
