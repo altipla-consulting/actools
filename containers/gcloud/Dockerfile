@@ -1,6 +1,7 @@
 
 FROM google/cloud-sdk:latest
-MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
+
+RUN mkdir /home/container
 
 COPY deploy-appengine.sh /usr/bin/deploy-appengine
 
