@@ -18,3 +18,4 @@ run "gsutil -h 'Cache-Control: no-cache' cp actools gs://tools.altipla.consultin
 run "echo ${build-tag} > version"
 run "gsutil -h 'Cache-Control: no-cache' cp version gs://tools.altipla.consulting/version-manifest/actools"
 
+git-tag
