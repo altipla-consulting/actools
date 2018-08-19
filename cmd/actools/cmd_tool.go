@@ -68,6 +68,7 @@ func createToolEntrypoint(containerDesc containers.Container, tool, workdir stri
 		options := []docker.ContainerOption{
 			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
 			docker.WithDefaultNetwork(),
+			docker.WithEnv("PROJECT", config.Settings.Project),
 		}
 		options = append(options, containerDesc.Options...)
 		if workdir != "" {
