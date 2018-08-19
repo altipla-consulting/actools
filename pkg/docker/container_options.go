@@ -116,21 +116,21 @@ func WithSharedGcloud() ContainerOption {
 		if ok, err := hasConfig(configPath); err != nil {
 			return errors.Trace(err)
 		} else if ok {
-			container.volumes[configPath] = "/.config/gcloud"
+			container.volumes[configPath] = "/home/container/.config/gcloud"
 		}
 
 		configPath = fmt.Sprintf("%s/.gsutil", config.Home())
 		if ok, err := hasConfig(configPath); err != nil {
 			return errors.Trace(err)
 		} else if ok {
-			container.volumes[configPath] = "/.gsutil"
+			container.volumes[configPath] = "/home/container/.gsutil"
 		}
 
 		configPath = fmt.Sprintf("%s/.kube", config.Home())
 		if ok, err := hasConfig(configPath); err != nil {
 			return errors.Trace(err)
 		} else if ok {
-			container.volumes[configPath] = "/.kube"
+			container.volumes[configPath] = "/home/container/.kube"
 		}
 
 		return nil
