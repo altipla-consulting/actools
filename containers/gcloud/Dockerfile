@@ -2,6 +2,6 @@
 FROM google/cloud-sdk:latest
 MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
-COPY deploy.sh /usr/bin/deploy.sh
+COPY deploy-appengine.sh /usr/bin/deploy-appengine
 
 WORKDIR /workspace

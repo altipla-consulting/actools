@@ -65,7 +65,7 @@ var containers = []Container{
 	},
 	{
 		Image: "gcloud",
-		Tools: []string{"gcloud", "gsutil", "kubectl"},
+		Tools: []string{"gcloud", "gsutil", "kubectl", "deploy-appengine"},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
