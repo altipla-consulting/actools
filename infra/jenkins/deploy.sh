@@ -6,6 +6,8 @@ set -eu
 
 GOOGLE_PROJECT=altipla-tools
 
+configure-google-cloud
+
 for FILE in containers/*/Dockerfile; do
   APP=$(basename $(dirname $FILE))
   docker-build-autotag eu.gcr.io/$GOOGLE_PROJECT/$APP containers/$APP/Dockerfile containers/$APP
