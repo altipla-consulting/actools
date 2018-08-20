@@ -16,4 +16,5 @@ rm -rf src/$PROJECT/vendor
 
 export GOPATH=$BUILD_DIR
 
+cd $BUILD_DIR/src/$PROJECT
 gcloud app deploy $*
