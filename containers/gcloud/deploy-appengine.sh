@@ -11,6 +11,7 @@ mkdir -p src/$(dirname $PROJECT)
 rsync -r --exclude=.git --exclude=node_modules /workspace/ src/$PROJECT
 
 echo " [*] Extract vendored files"
+find src/$PROJECT/vendor/* -type d -name vendor -prune -exec rm -rf {} \;
 rsync -a src/$PROJECT/vendor/ src
 rm -rf src/$PROJECT/vendor
 
