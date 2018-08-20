@@ -24,6 +24,7 @@ var containers = []Container{
 		Options: []docker.ContainerOption{
 			docker.WithLocalUser(),
 			docker.WithSharedGcloud(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -34,6 +35,7 @@ var containers = []Container{
 			docker.WithLocalUser(),
 			docker.WithSharedGopath(),
 			docker.WithSharedGcloud(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -42,6 +44,7 @@ var containers = []Container{
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -53,6 +56,7 @@ var containers = []Container{
 			docker.WithSharedSSHSocket(),
 			docker.WithSharedGcloud(),
 			docker.WithSharedGopath(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -61,6 +65,7 @@ var containers = []Container{
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -71,6 +76,7 @@ var containers = []Container{
 			docker.WithLocalUser(),
 			docker.WithSharedSSHSocket(),
 			docker.WithSharedGcloud(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -91,6 +97,7 @@ var containers = []Container{
 			docker.WithLocalUser(),
 			docker.WithSharedGopath(),
 			docker.WithSharedGcloud(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -99,6 +106,7 @@ var containers = []Container{
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -116,6 +124,7 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
 			docker.WithSharedGopath(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -133,6 +142,7 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
 			docker.WithoutTTY(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -142,6 +152,7 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
 			docker.WithSharedSSHSocket(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -161,6 +172,7 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
 			docker.WithSharedGopath(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -197,6 +209,7 @@ var containers = []Container{
 			docker.WithLocalUser(),
 			docker.WithSharedSSHSocket(),
 			docker.WithSharedGcloud(),
+			docker.WithStandardHome(),
 		},
 	},
 	{
@@ -204,6 +217,7 @@ var containers = []Container{
 		Tools: []string{"migrator", "init-migrator"},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
+			docker.WithStandardHome(),
 		},
 	},
 }

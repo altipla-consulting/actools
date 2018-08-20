@@ -203,3 +203,10 @@ func hasConfig(path string) (bool, error) {
 
 	return true, nil
 }
+
+func WithStandardHome() ContainerOption {
+	return func(container *ContainerManager) error {
+		container.env["HOME"] = "/home/container"
+		return nil
+	}
+}
