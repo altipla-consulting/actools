@@ -2,12 +2,18 @@
 
 set -eu
 
-mkdir -p /go/src/$(dirname $PROJECT)
-ln -s /workspace /go/src/$PROJECT
+BUILD_DIR=$(mktemp -d)
 
-mkdir -p /vendor
-ln -s /vendor/src /go/src/$PROJECT/vendor
+cd $BUILD_DIR
 
-export GOPATH=/vendor:/go
+echo " [*] Prepare build directory"
+mkdir -p src/$(dirname $PROJECT)
+rsync -r --exclude=.git --exclude=node_modules /workspace/ src/$PROJECT
+
+echo " [*] Extract vendored files"
+rsync -a src/$PROJECT/vendor/ src
+rm -rf src/$PROJECT/vendor
+
+export GOPATH=$BUILD_DIR
 
 gcloud app deploy $*
