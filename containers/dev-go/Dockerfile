@@ -2,6 +2,9 @@
 FROM golang:1.10
 MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
+RUN mkdir /home/container && \
+   chmod 0777 /home/container
+
 ENV CACHE_BUST 1
 ENV GOPATH /gotools
 RUN go get -u github.com/cortesi/modd/cmd/modd
