@@ -120,3 +120,8 @@ services:
     image: eu.gcr.io/altipla-tools/dev-appengine:latest
     build:
       context: containers/dev-appengine
+
+  envoy:
+    image: eu.gcr.io/altipla-tools/envoy:latest
+    build:
+      context: containers/envoy

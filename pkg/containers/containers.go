@@ -19,6 +19,11 @@ var containers = []Container{
 		Options: []docker.ContainerOption{},
 	},
 	{
+		Image:   "envoy",
+		Tools:   []string{"envoy"},
+		Options: []docker.ContainerOption{},
+	},
+	{
 		Image: "cloudsqlproxy",
 		Tools: []string{},
 		Options: []docker.ContainerOption{
