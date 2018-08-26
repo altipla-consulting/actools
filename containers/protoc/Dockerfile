@@ -13,6 +13,8 @@ RUN curl -sL -o protoc.zip https://github.com/google/protobuf/releases/download/
 RUN curl -sL -o master.zip https://github.com/googleapis/googleapis/archive/master.zip && \
     unzip master.zip -d /opt/googleapis && \
     rm master.zip && \
+    mv /opt/googleapis/googleapis-master/* /opt/googleapis && \
+    rm -rf /opt/googleapis/googleapis-master && \
     chmod -R 0777 /opt/googleapis
 
 ENV CACHE_BUST 1
