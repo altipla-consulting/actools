@@ -5,10 +5,15 @@ MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 RUN apt-get update && \
     apt-get install -y unzip
 
-RUN curl -sL -o protoc.zip https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip && \
+RUN curl -sL -o protoc.zip https://github.com/google/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip && \
     unzip protoc.zip -d /opt/protobuf && \
     rm protoc.zip && \
     chmod -R 0777 /opt/protobuf
+
+RUN curl -sL -o master.zip https://github.com/googleapis/googleapis/archive/master.zip && \
+    unzip master.zip -d /opt/googleapis && \
+    rm master.zip && \
+    chmod -R 0777 /opt/googleapis
 
 ENV CACHE_BUST 1
 ENV GOPATH /gotools
