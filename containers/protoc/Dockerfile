@@ -21,7 +21,8 @@ ENV CACHE_BUST 1
 ENV GOPATH /gotools
 RUN go get -u github.com/golang/protobuf/proto && \
     go get -u github.com/golang/protobuf/protoc-gen-go && \
-    go get -u google.golang.org/grpc
+    go get -u google.golang.org/grpc && \
+    go get -u github.com/altipla-consulting/protoc-gen-grpc_browser
 ENV GOPATH /go
 
 ENV PATH $PATH:/opt/protobuf/bin:/gotools/bin
