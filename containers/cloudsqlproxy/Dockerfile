@@ -1,6 +1,5 @@
 
-FROM google/debian:jessie
-MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
+FROM launcher.gcr.io/google/debian9:latest
 
 RUN apt-get update && \
     apt-get install -y wget
