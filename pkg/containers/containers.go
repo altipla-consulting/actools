@@ -197,7 +197,9 @@ var containers = []Container{
 	{
 		Image:   "redis",
 		Tools:   []string{"redis-cli"},
-		Options: []docker.ContainerOption{},
+		Options: []docker.ContainerOption{
+			docker.WithoutTTY(),
+		},
 	},
 	{
 		Image: "sass-lint",
