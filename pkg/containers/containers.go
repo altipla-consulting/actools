@@ -196,7 +196,7 @@ var containers = []Container{
 	},
 	{
 		Image:   "redis",
-		Tools:   []string{},
+		Tools:   []string{"redis-cli"},
 		Options: []docker.ContainerOption{},
 	},
 	{
