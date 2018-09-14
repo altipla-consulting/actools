@@ -22,6 +22,10 @@ func Check() error {
 
 	lastUpdateFilename := filepath.Join(config.Home(), ".actools", "last-update-check.txt")
 
+	if err := os.MkdirAll(filepath.Dir(lastUpdateFilename), 0700); err != nil {
+		return errors.Trace(err)
+	}
+
 	lastUpdate := time.Time{}
 	lastUpdateContent, err := ioutil.ReadFile(lastUpdateFilename)
 	if err != nil && !os.IsNotExist(err) {
