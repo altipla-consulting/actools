@@ -22,18 +22,18 @@ func Check() error {
 
 	lastUpdateFilename := filepath.Join(config.Home(), ".actools", "last-update-check.txt")
 
+	if err := os.MkdirAll(lastUpdateFilename, 0600); err =! nil {
+		return errors.Trace(err)
+	}
+
 	lastUpdate := time.Time{}
 	lastUpdateContent, err := ioutil.ReadFile(lastUpdateFilename)
 	if err != nil && !os.IsNotExist(err) {
 		return errors.Trace(err)
-	} else if os.IsNotExist(err) {
-		if err := ioutil.WriteFile(lastUpdateFilename, []byte{}, 0600); err != nil {
+	} else if err == nil {
+		if err := lastUpdate.UnmarshalText(lastUpdateContent); err != nil {
 			return errors.Trace(err)
 		}
-	}
-
-	if err := lastUpdate.UnmarshalText(lastUpdateContent); err != nil {
-		return errors.Trace(err)
 	}
 
 	if time.Now().Sub(lastUpdate) > 1*time.Hour {
