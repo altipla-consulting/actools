@@ -26,10 +26,14 @@ func Check() error {
 	lastUpdateContent, err := ioutil.ReadFile(lastUpdateFilename)
 	if err != nil && !os.IsNotExist(err) {
 		return errors.Trace(err)
-	} else if err == nil {
-		if err := lastUpdate.UnmarshalText(lastUpdateContent); err != nil {
+	} else if os.IsNotExist(err) {
+		if err := ioutil.WriteFile(lastUpdateFilename, []byte{}, 0600); err != nil {
 			return errors.Trace(err)
 		}
+	}
+
+	if err := lastUpdate.UnmarshalText(lastUpdateContent); err != nil {
+		return errors.Trace(err)
 	}
 
 	if time.Now().Sub(lastUpdate) > 1*time.Hour {
