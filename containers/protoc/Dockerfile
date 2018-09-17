@@ -3,7 +3,7 @@ FROM golang:1.10
 MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 RUN apt-get update && \
-    apt-get install -y unzip
+    apt-get install -y unzip build-essential zlib1g-dev autoconf libtool
 
 RUN curl -sL -o protoc.zip https://github.com/google/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip && \
     unzip protoc.zip -d /opt/protobuf && \
@@ -16,6 +16,12 @@ RUN curl -sL -o master.zip https://github.com/googleapis/googleapis/archive/mast
     mv /opt/googleapis/googleapis-master/* /opt/googleapis && \
     rm -rf /opt/googleapis/googleapis-master && \
     chmod -R 0777 /opt/googleapis
+
+WORKDIR /opt
+RUN git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc && \
+   cd grpc && \
+   git submodule update --init && \
+   make grpc_php_plugin
 
 ENV CACHE_BUST 6
 ENV GOPATH /gotools
