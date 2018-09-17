@@ -17,7 +17,7 @@ RUN curl -sL -o master.zip https://github.com/googleapis/googleapis/archive/mast
     rm -rf /opt/googleapis/googleapis-master && \
     chmod -R 0777 /opt/googleapis
 
-ENV CACHE_BUST 4
+ENV CACHE_BUST 5
 ENV GOPATH /gotools
 RUN go get -u github.com/golang/protobuf/proto && \
     go get -u github.com/golang/protobuf/protoc-gen-go && \
