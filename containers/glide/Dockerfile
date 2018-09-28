@@ -1,6 +1,5 @@
 
-FROM golang:1.10
-MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
+FROM golang:1.11
 
 RUN apt-get update && \
     apt-get install -y curl

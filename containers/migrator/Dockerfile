@@ -1,5 +1,5 @@
 
-FROM golang:1.10
+FROM golang:1.11
 
 ENV CACHE_BUST 2
 RUN go get -u github.com/altipla-consulting/migrator/cmd/init-migrator

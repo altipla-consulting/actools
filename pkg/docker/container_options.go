@@ -164,14 +164,6 @@ func WithSharedGopath() ContainerOption {
 			if err := os.MkdirAll(cachePkg, 0777); err != nil {
 				return errors.Trace(err)
 			}
-
-			wd, err := os.Getwd()
-			if err != nil {
-				return errors.Trace(err)
-			}
-
-			container.workdir = fmt.Sprintf("/go/src/%s", config.ProjectPackage())
-			container.volumes[wd] = container.workdir
 		}
 
 		return nil
