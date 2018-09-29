@@ -8,7 +8,7 @@ else
   APP=$(basename $WORKDIR)
 fi
 
-cd /go/src/$PROJECT/$WORKDIR
+cd /workspace/$WORKDIR
 
 echo """
 **/*.go {
