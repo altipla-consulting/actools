@@ -53,10 +53,9 @@ func Check() error {
 			log.WithFields(log.Fields{"current": config.Version, "latest": version}).Error("actools is not updated")
 
 			log.Warning()
-			log.Warning("Run the following commands to install the latest version:")
+			log.Warning("Run the following command to install the latest version:")
 			log.Warning()
-			log.Warning("\tcurl https://tools.altipla.consulting/bin/actools > ~/bin/actools && chmod +x ~/bin/actools")
-			log.Warning("\tactools pull")
+			log.Warning("\tcurl https://tools.altipla.consulting/install/actools | bash")
 			log.Warning()
 
 			os.Exit(2)
