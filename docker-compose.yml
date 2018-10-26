@@ -125,3 +125,8 @@ services:
     image: eu.gcr.io/altipla-tools/envoy:latest
     build:
       context: containers/envoy
+
+  php:
+    image: eu.gcr.io/altipla-tools/php:latest
+    build:
+      context: containers/php

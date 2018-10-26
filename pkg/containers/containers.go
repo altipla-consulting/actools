@@ -227,6 +227,13 @@ var containers = []Container{
 			docker.WithStandardHome(),
 		},
 	},
+	{
+		Image: "php",
+		Tools: []string{"php", "phpunit", "composer"},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+		},
+	},
 }
 
 func Images() []string {
