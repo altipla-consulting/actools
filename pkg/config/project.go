@@ -14,25 +14,7 @@ var (
 	projectPackage string
 )
 
-type glideConfig struct {
-	Package string `yaml:"package"`
-}
-
 func init() {
-	// First source: the glide.yaml file with its package name
-	content, err := ioutil.ReadFile("glide.yaml")
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatal(err)
-	} else if err == nil {
-		glideCnf := new(glideConfig)
-		if err := yaml.Unmarshal(content, glideCnf); err != nil {
-			log.Fatal(err)
-		}
-		if glideCnf.Package != "." && glideCnf.Package != "" {
-			projectPackage = glideCnf.Package
-		}
-	}
-
 	if Settings.Project != "" {
 		projectPackage = Settings.Project
 	}

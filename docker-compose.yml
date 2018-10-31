@@ -1,11 +1,6 @@
 
 version: '2'
 services:
-  glide:
-    image: eu.gcr.io/altipla-tools/glide:latest
-    build:
-      context: containers/glide
-
   go:
     image: eu.gcr.io/altipla-tools/go:latest
     build:
@@ -20,11 +15,6 @@ services:
     image: eu.gcr.io/altipla-tools/protoc:latest
     build:
       context: containers/protoc
-
-  rambler:
-    image: eu.gcr.io/altipla-tools/rambler:latest
-    build:
-      context: containers/rambler
 
   statik:
     image: eu.gcr.io/altipla-tools/statik:latest

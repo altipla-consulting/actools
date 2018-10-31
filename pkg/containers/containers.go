@@ -85,16 +85,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "glide",
-		Tools: []string{"glide"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithSharedSSHSocket(),
-			docker.WithSharedGopath(),
-		},
-	},
-	{
 		Image: "go",
 		Tools: []string{"go", "gofmt"},
 		Options: []docker.ContainerOption{
@@ -181,13 +171,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "rambler",
-		Tools: []string{"rambler"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-		},
-	},
-	{
 		Image: "statik",
 		Tools: []string{"statik"},
 		Options: []docker.ContainerOption{
@@ -195,8 +178,8 @@ var containers = []Container{
 		},
 	},
 	{
-		Image:   "redis",
-		Tools:   []string{"redis-cli"},
+		Image: "redis",
+		Tools: []string{"redis-cli"},
 		Options: []docker.ContainerOption{
 			docker.WithoutTTY(),
 		},
