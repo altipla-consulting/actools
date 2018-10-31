@@ -6,6 +6,8 @@ import (
 	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
+const Repo = "eu.gcr.io/altipla-tools"
+
 type Container struct {
 	Image   string
 	Tools   []string
