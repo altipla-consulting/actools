@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/juju/errors"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/run"
@@ -169,7 +170,7 @@ func (container *ContainerManager) buildCommand(operation string, args ...string
 	sh = append(sh, operation, "-i")
 
 	// La terminal solo la podemos activar en local cuando ejecutamos comandos directamente.
-	if !container.noTTY {
+	if !container.noTTY && terminal.IsTerminal(int(os.Stdout.Fd())) {
 		sh = append(sh, "-t")
 	}
 

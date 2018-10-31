@@ -36,7 +36,7 @@ func init() {
 				Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
 				DisableFlagParsing:    true,
 				DisableFlagsInUseLine: true,
-				RunE: createToolEntrypoint(container, tool, ""),
+				RunE:                  createToolEntrypoint(container, tool, ""),
 			}
 			CmdRoot.AddCommand(CmdToolDirect)
 
@@ -45,7 +45,7 @@ func init() {
 				Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
 				DisableFlagParsing:    true,
 				DisableFlagsInUseLine: true,
-				RunE: createToolEntrypoint(container, tool, ""),
+				RunE:                  createToolEntrypoint(container, tool, ""),
 			}
 			CmdDebug.AddCommand(CmdToolDebug)
 
@@ -55,7 +55,7 @@ func init() {
 					Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
 					DisableFlagParsing:    true,
 					DisableFlagsInUseLine: true,
-					RunE: createToolEntrypoint(container, tool, service.Workdir),
+					RunE:                  createToolEntrypoint(container, tool, service.Workdir),
 				}
 				CmdsApp[name].AddCommand(CmdAppServiceTool)
 			}

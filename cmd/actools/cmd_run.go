@@ -18,7 +18,7 @@ func init() {
 			Short:                 fmt.Sprintf("Contenedor %s", container.Image),
 			DisableFlagParsing:    true,
 			DisableFlagsInUseLine: true,
-			RunE: createRunEntrypoint(container),
+			RunE:                  createRunEntrypoint(container),
 		}
 		CmdRun.AddCommand(CmdContainer)
 	}
