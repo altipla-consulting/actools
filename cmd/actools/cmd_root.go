@@ -27,7 +27,7 @@ var CmdRoot = &cobra.Command{
 			log.Debug("DEBUG log level activated")
 		}
 		log.SetFormatter(&log.TextFormatter{
-			ForceColors: terminal.IsTerminal(int(os.Stdout.Fd())),
+			DisableColors: !terminal.IsTerminal(int(os.Stdout.Fd())),
 		})
 
 		if err := update.Check(); err != nil {
