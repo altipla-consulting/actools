@@ -1,8 +1,11 @@
 package main
 
 import (
+	"os"
+
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/ssh/terminal"
 	"github.com/spf13/cobra"
 
 	"github.com/altipla-consulting/actools/pkg/update"
@@ -23,6 +26,9 @@ var CmdRoot = &cobra.Command{
 			log.SetLevel(log.DebugLevel)
 			log.Debug("DEBUG log level activated")
 		}
+		log.SetFormatter(&log.TextFormatter{
+			ForceColors: terminal.IsTerminal(int(os.Stdout.Fd())),
+		})
 
 		if err := update.Check(); err != nil {
 			return errors.Trace(err)
