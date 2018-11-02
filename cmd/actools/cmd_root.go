@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
