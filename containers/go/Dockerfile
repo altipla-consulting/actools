@@ -9,9 +9,9 @@ RUN groupadd --gid 1000 -r localgrp -o && \
     useradd --system --uid=1001 --gid=1000 --home-dir /home/container local1001 -o
 
 COPY gitconfig /home/container/.gitconfig
-COPY gitconfig /home/root/.gitconfig
+COPY gitconfig /root/.gitconfig
 
 COPY sshconfig /home/container/.ssh/config
-COPY sshconfig /home/root/.ssh/config
+COPY sshconfig /root/.ssh/config
 
 WORKDIR /workspace
