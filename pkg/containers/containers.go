@@ -95,6 +95,7 @@ var containers = []Container{
 			docker.WithSharedGopath(),
 			docker.WithSharedGcloud(),
 			docker.WithStandardHome(),
+			docker.WithSharedSSHSocket(),
 		},
 	},
 	{
