@@ -222,7 +222,7 @@ var containers = []Container{
 	},
 	{
 		Image:   "prometheus",
-		Tools:   []string{"prometheus"},
+		Tools:   []string{},
 		Options: []docker.ContainerOption{},
 	},
 }
