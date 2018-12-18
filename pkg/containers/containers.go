@@ -220,6 +220,11 @@ var containers = []Container{
 			docker.WithSharedWorkspace(),
 		},
 	},
+	{
+		Image:   "prometheus",
+		Tools:   []string{},
+		Options: []docker.ContainerOption{},
+	},
 }
 
 func Images() []string {
