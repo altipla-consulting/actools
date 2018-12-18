@@ -120,3 +120,8 @@ services:
     image: eu.gcr.io/altipla-tools/php:latest
     build:
       context: containers/php
+
+  prometheus:
+    image: eu.gcr.io/altipla-tools/prometheus:latest
+    build:
+      context: containers/prometheus
