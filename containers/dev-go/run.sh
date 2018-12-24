@@ -11,8 +11,9 @@ fi
 cd /workspace/$WORKDIR
 
 echo """
-**/*.go {
+**/*.go /workspace/pkg/**/*.go {
   prep: go install ./cmd/$APP
+  prep: pwd
   daemon +sigterm: $APP
 }
 """ > /tmp/modd.conf
