@@ -125,3 +125,8 @@ services:
     image: eu.gcr.io/altipla-tools/prometheus:latest
     build:
       context: containers/prometheus
+
+  revive:
+    image: eu.gcr.io/altipla-tools/revive:latest
+    build:
+      context: containers/revive

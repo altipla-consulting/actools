@@ -225,6 +225,14 @@ var containers = []Container{
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},
 	},
+	{
+		Image: "revive",
+		Tools: []string{"revive"},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithStandardHome(),
+		},
+	},
 }
 
 func Images() []string {
