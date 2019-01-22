@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"strings"
+	"bytes"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -66,14 +66,12 @@ func runForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName str
 		loggerOut := log.New()
 		loggerOut.Formatter = newPrefixFormatter(serviceName)
 		loggerOut.SetLevel(log.StandardLogger().Level)
-		cmd.Stdout = &logrusWriter{loggerOut}
+		cmd.Stdout = &logrusWriter{logger: loggerOut}
 
 		loggerErr := log.New()
 		loggerErr.Formatter = newPrefixFormatter(serviceName)
 		loggerErr.SetLevel(log.StandardLogger().Level)
-		werr := loggerErr.WriterLevel(log.DebugLevel)
-		defer werr.Close()
-		cmd.Stderr = werr
+		cmd.Stderr = &logrusWriter{logger: loggerErr, debug: true}
 
 		if err := cmd.Start(); err != nil {
 			notifyErr <- err
@@ -121,14 +119,30 @@ func newPrefixFormatter(serviceName string) *prefixFormatter {
 
 type logrusWriter struct {
 	logger *log.Logger
+	debug bool
 }
 
 func (w *logrusWriter) Write(b []byte) (int, error) {
-	s := string(b)
-	s = strings.TrimSpace(s)
-	parts := strings.Split(s, "\r\n")
+	const maxLogSize = 64*1024
+
+	var result [][]byte
+	parts := bytes.Split(bytes.TrimSpace(b), []byte("\r\n"))
 	for _, part := range parts {
-		w.logger.Info(part)
+		for len(part) > maxLogSize {
+			result = append(result, part[:maxLogSize])
+			part = part[maxLogSize:]
+		}
+
+		if len(part) > 0 {
+			result = append(result, part)
+		}
+	}
+	for _, line := range result {
+		if w.debug {
+			w.logger.Debug(string(line))
+		} else {
+			w.logger.Info(string(line))
+		}
 	}
 
 	return len(b), nil
