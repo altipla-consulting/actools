@@ -1,5 +1,5 @@
 
-FROM node:9
+FROM node:10
 MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 RUN npm install -g nodemon
