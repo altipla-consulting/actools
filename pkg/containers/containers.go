@@ -145,7 +145,7 @@ var containers = []Container{
 	},
 	{
 		Image: "node",
-		Tools: []string{"node", "npm"},
+		Tools: []string{"node", "npm", "npx"},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
