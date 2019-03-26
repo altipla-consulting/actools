@@ -15,7 +15,7 @@ echo """
   prep: go install ./cmd/$APP
 }
 
-/go/bin/$APP {
+/go/bin/$APP /etc/$APP/**/* {
   daemon +sigterm: $APP
 }
 """ > /tmp/modd.conf
