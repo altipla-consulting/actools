@@ -140,3 +140,8 @@ services:
     image: eu.gcr.io/altipla-tools/vue:latest
     build:
       context: containers/vue
+
+  firestore:
+    image: eu.gcr.io/altipla-tools/firestore:latest
+    build:
+      context: containers/firestore

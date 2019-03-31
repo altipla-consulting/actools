@@ -252,6 +252,11 @@ var containers = []Container{
 			docker.WithStandardHome(),
 		},
 	},
+	{
+		Image:   "firestore",
+		Tools:   []string{},
+		Options: []docker.ContainerOption{},
+	},
 }
 
 func Images() []string {
