@@ -5,7 +5,9 @@ RUN apt-get update && \
     apt-get install -y zip unzip
 
 RUN mkdir /home/container && \
-   chmod 0777 /home/container
+    chmod 0777 /home/container && \
+    mkdir /data && \
+    chmod 0777 /data
 
 ENV CACHE_BUST 1
 ENV GOPATH /gotools
