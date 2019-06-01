@@ -6,3 +6,5 @@ RUN apt-get update && \
 
 # validate-http-proto
 RUN curl -sSL https://git.io/fjE3d | bash
+
+WORKDIR /workspace
