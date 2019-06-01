@@ -29,7 +29,7 @@ RUN go get -u github.com/golang/protobuf/proto && \
     go get -u google.golang.org/grpc && \
     go get -u github.com/altipla-consulting/protoc-gen-grpc_browser
 RUN cd /gotools/src/github.com/golang/protobuf && \
-    git checkout v1.2.0 && \
+    git checkout v1.3.1 && \
     go install ./...
 ENV GOPATH /go
 
