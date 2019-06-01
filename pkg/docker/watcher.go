@@ -1,11 +1,11 @@
 package docker
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
-	"bytes"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -119,11 +119,11 @@ func newPrefixFormatter(serviceName string) *prefixFormatter {
 
 type logrusWriter struct {
 	logger *log.Logger
-	debug bool
+	debug  bool
 }
 
 func (w *logrusWriter) Write(b []byte) (int, error) {
-	const maxLogSize = 64*1024
+	const maxLogSize = 64 * 1024
 
 	var result [][]byte
 	parts := bytes.Split(bytes.TrimSpace(b), []byte("\r\n"))

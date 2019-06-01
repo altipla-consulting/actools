@@ -145,3 +145,8 @@ services:
     image: eu.gcr.io/altipla-tools/firestore:latest
     build:
       context: containers/firestore
+
+  generic-tools:
+    image: eu.gcr.io/altipla-tools/generic-tools:latest
+    build:
+      context: containers/generic-tools

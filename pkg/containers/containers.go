@@ -257,6 +257,11 @@ var containers = []Container{
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},
 	},
+	{
+		Image:   "generic-tools",
+		Tools:   []string{"validate-proto-http"},
+		Options: []docker.ContainerOption{},
+	},
 }
 
 func Images() []string {
