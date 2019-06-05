@@ -1,7 +1,6 @@
 package docker
 
 import (
-	"fmt"
 	"os/exec"
 
 	"github.com/juju/errors"
@@ -13,9 +12,11 @@ type NetworkManager struct {
 }
 
 func Network(name string) *NetworkManager {
-	return &NetworkManager{
-		name: fmt.Sprintf("actools_%s", name),
-	}
+	return NetworkWithRealname("actools_" + name)
+}
+
+func NetworkWithRealname(name string) *NetworkManager {
+	return &NetworkManager{name: name}
 }
 
 func (network *NetworkManager) Exists() (bool, error) {

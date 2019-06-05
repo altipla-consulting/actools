@@ -7,4 +7,7 @@ RUN apt-get update && \
 # validate-http-proto
 RUN curl -sSL https://git.io/fjE3d | bash
 
+# devmails
+RUN curl -sSL https://git.io/fjuM7 | bash
+
 WORKDIR /workspace
