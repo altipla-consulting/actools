@@ -4,10 +4,10 @@ FROM launcher.gcr.io/google/debian9:latest
 RUN apt-get update && \
   apt-get install -y curl jq
 
-# validate-http-proto
+ENV CACHE_BUST validate-http-proto-v0.1.2
 RUN curl -sSL https://git.io/fjE3d | bash
 
-# devmails
+ENV CACHE_BUST devmails-v0.1.0
 RUN curl -sSL https://git.io/fjuM7 | bash
 
 WORKDIR /workspace
