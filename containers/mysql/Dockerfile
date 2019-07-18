@@ -1,6 +1,5 @@
 
 FROM mysql:5.7
-MAINTAINER Ernesto Alejo <ernesto@altiplaconsulting.com>
 
 ENV MYSQL_ROOT_PASSWORD dev-root
 ENV MYSQL_USER dev-user
