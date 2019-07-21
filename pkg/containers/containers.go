@@ -139,6 +139,11 @@ var containers = []Container{
 		Options: []docker.ContainerOption{},
 	},
 	{
+		Image: "telegraf",
+		Tools: []string{"telegraf"},
+		Options: []docker.ContainerOption{},
+	},
+	{
 		Image: "mysqldump",
 		Tools: []string{"mysqldump"},
 		Options: []docker.ContainerOption{
