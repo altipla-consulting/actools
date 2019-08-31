@@ -12,7 +12,7 @@ cd /workspace/$WORKDIR
 
 echo """
 **/*.go /workspace/pkg/**/*.go {
-  prep: go install ./cmd/$APP
+  prep: go install .
 }
 
 /go/bin/$APP /etc/$APP/**/* {
