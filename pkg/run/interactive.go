@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"libs.altipla.consulting/errors"
 )
 
 func Interactive(name string, args ...string) error {

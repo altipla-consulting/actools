@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/juju/errors"
 	"github.com/spf13/cobra"
+	"libs.altipla.consulting/errors"
 )
 
 func init() {
@@ -14,7 +14,7 @@ var CmdRestart = &cobra.Command{
 	Short: "Reinicia un servicio de desarrollo.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return errors.NotValidf("arguments required")
+			return errors.Errorf("arguments required")
 		}
 
 		if err := stopCommand(args); err != nil {

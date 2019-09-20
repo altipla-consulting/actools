@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/update"
 )

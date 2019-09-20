@@ -1,7 +1,7 @@
 package containers
 
 import (
-	"github.com/juju/errors"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/docker"
 )
@@ -134,13 +134,13 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "influxdb",
-		Tools: []string{"influxdb"},
+		Image:   "influxdb",
+		Tools:   []string{"influxdb"},
 		Options: []docker.ContainerOption{},
 	},
 	{
-		Image: "telegraf",
-		Tools: []string{"telegraf"},
+		Image:   "telegraf",
+		Tools:   []string{"telegraf"},
 		Options: []docker.ContainerOption{},
 	},
 	{
@@ -297,5 +297,5 @@ func FindImage(image string) (Container, error) {
 		}
 	}
 
-	return Container{}, errors.NotFoundf("container: %s", image)
+	return Container{}, errors.Errorf("container not found: %s", image)
 }

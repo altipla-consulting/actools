@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/juju/errors"
 	"github.com/spf13/cobra"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/containers"
 	"github.com/altipla-consulting/actools/pkg/docker"

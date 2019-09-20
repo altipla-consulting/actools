@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 )

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/docker"
@@ -30,7 +30,7 @@ func stopCommand(args []string) error {
 
 	for _, arg := range args {
 		if !config.Settings.IsTool(arg) {
-			return errors.NotFoundf("service %s", arg)
+			return errors.Errorf("service not found: %s", arg)
 		}
 	}
 

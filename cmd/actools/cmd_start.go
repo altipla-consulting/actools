@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/altipla-consulting/collections"
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/containers"
@@ -50,17 +50,17 @@ func startCommand(args []string) error {
 		for _, port := range config.Settings.Tools[tool].Ports {
 			parts := strings.Split(port, ":")
 			if len(parts) != 2 {
-				return errors.NotValidf("ports of tool %s", tool)
+				return errors.Errorf("invalid ports of tool: %s", tool)
 			}
 
 			source, err := strconv.ParseInt(parts[0], 10, 64)
 			if err != nil {
-				return errors.NewNotValid(err, fmt.Sprintf("invalid port number: %s", parts[0]))
+				return errors.Wrapf(err, "invalid port number: %s", parts[0])
 			}
 
 			inside, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return errors.NewNotValid(err, fmt.Sprintf("invalid port number: %s", parts[1]))
+				return errors.Wrapf(err, "invalid port number: %s", parts[1])
 			}
 
 			options = append(options, docker.WithPort(source, inside))
@@ -69,7 +69,7 @@ func startCommand(args []string) error {
 		for _, volume := range config.Settings.Tools[tool].Volumes {
 			parts := strings.Split(volume, ":")
 			if len(parts) != 2 {
-				return errors.NotValidf("volumes of tool %s", tool)
+				return errors.Errorf("invalid volumes of tool: %s", tool)
 			}
 
 			options = append(options, docker.WithVolume(parts[0], parts[1]))
@@ -108,17 +108,17 @@ func startCommand(args []string) error {
 		for _, port := range config.Settings.Services[service].Ports {
 			parts := strings.Split(port, ":")
 			if len(parts) != 2 {
-				return errors.NotValidf("ports of service %s", service)
+				return errors.Errorf("invalid ports of service: %s", service)
 			}
 
 			source, err := strconv.ParseInt(parts[0], 10, 64)
 			if err != nil {
-				return errors.NewNotValid(err, fmt.Sprintf("invalid port number: %s", parts[0]))
+				return errors.Wrapf(err, "invalid port number: %s", parts[0])
 			}
 
 			inside, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return errors.NewNotValid(err, fmt.Sprintf("invalid port number: %s", parts[1]))
+				return errors.Wrapf(err, "invalid port number: %s", parts[1])
 			}
 
 			options = append(options, docker.WithPort(source, inside))
@@ -127,7 +127,7 @@ func startCommand(args []string) error {
 		for _, volume := range config.Settings.Services[service].Volumes {
 			parts := strings.Split(volume, ":")
 			if len(parts) != 2 {
-				return errors.NotValidf("volumes of service %s", service)
+				return errors.Errorf("invalid volumes of service: %s", service)
 			}
 
 			options = append(options, docker.WithVolume(parts[0], parts[1]))
@@ -184,7 +184,7 @@ func resolveDeps(args []string) ([]string, []string, error) {
 			continue
 		}
 
-		return nil, nil, errors.NotFoundf("service %s", arg)
+		return nil, nil, errors.Errorf("service not found: %s", arg)
 	}
 
 	services = collections.UniqueStrings(services)

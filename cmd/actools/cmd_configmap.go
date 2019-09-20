@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/juju/errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
+	"libs.altipla.consulting/errors"
 )
 
 var configMapName string

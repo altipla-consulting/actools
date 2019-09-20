@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/juju/errors"
 	"golang.org/x/crypto/ssh/terminal"
+	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/run"
@@ -82,7 +82,7 @@ func (container *ContainerManager) Running() (bool, error) {
 	cmd := exec.Command("docker", "inspect", "-f", "{{.State.Running}}", container.name)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return false, errors.Annotate(err, "cannot inspect container")
+		return false, errors.Wrapf(err, "cannot inspect container: %s", container.name)
 	}
 
 	switch strings.TrimSpace(string(output)) {

@@ -3,8 +3,8 @@ package docker
 import (
 	"os/exec"
 
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"libs.altipla.consulting/errors"
 )
 
 type NetworkManager struct {
