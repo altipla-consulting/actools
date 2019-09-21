@@ -78,7 +78,10 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 				for app := range pending {
 					delete(pending, app)
 
-					log.WithField("app", app).Info("Building app")
+					log.WithFields(log.Fields{
+						"app": app,
+						"pending": len(pending),
+					}).Info("Building app")
 
 					tool := containers.FindContainerTool("go")
 
@@ -178,7 +181,7 @@ func sourceCodeWatcher(ctx context.Context, app string) func() error {
 		if _, err := os.Stat("pkg"); err != nil && !os.IsNotExist(err) {
 			return errors.Trace(err)
 		} else if err == nil {
-			if err := filepath.Walk("/workspace/pkg", walkFn); err != nil {
+			if err := filepath.Walk("pkg", walkFn); err != nil {
 				return errors.Trace(err)
 			}
 		}
