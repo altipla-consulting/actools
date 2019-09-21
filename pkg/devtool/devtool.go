@@ -97,14 +97,13 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 					}
 
 					svc := config.Settings.Services[app]
-					lines, err := container.RunNonInteractiveCaptureOutput(15, "go", "install", "./"+svc.Workdir)
+					lines, err := container.RunNonInteractiveCaptureOutput(7, "go", "install", "./"+svc.Workdir)
 					if err != nil {
 						exit, ok := errors.Cause(err).(*exec.ExitError)
 						if !ok {
 							return errors.Trace(err)
 						}
 
-						log.Println(lines)
 						log.WithFields(log.Fields{
 							"app":       app,
 							"exit-code": exit.ExitCode(),
