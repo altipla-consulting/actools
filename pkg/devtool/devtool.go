@@ -141,11 +141,23 @@ func sourceCodeWatcher(ctx context.Context, app string) func() error {
 			return errors.Trace(err)
 		}
 
+		svc := config.Settings.Services[app]
 		walkFn := func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return errors.Trace(err)
 			}
 			if !info.IsDir() {
+				return nil
+			}
+
+			var ignore bool
+			for _, ig := range svc.Ignore {
+				if strings.HasPrefix(path, ig) {
+					ignore = true
+					break
+				}
+			}
+			if ignore {
 				return nil
 			}
 
@@ -156,7 +168,6 @@ func sourceCodeWatcher(ctx context.Context, app string) func() error {
 
 			return nil
 		}
-		svc := config.Settings.Services[app]
 		if err := filepath.Walk(svc.Workdir, walkFn); err != nil {
 			return errors.Trace(err)
 		}
@@ -170,6 +181,17 @@ func sourceCodeWatcher(ctx context.Context, app string) func() error {
 				return errors.Trace(err)
 
 			case ev := <-watcher.Events:
+				var ignore bool
+				for _, ig := range svc.Ignore {
+					if strings.HasPrefix(ev.Name, ig) {
+						ignore = true
+						break
+					}
+				}
+				if ignore {
+					continue
+				}
+
 				switch ev.Op {
 				case fsnotify.Create:
 					info, err := os.Stat(ev.Name)
