@@ -1,14 +1,14 @@
 package run
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-	"io"
-	"bufio"
 
 	log "github.com/sirupsen/logrus"
 	"libs.altipla.consulting/errors"
@@ -99,7 +99,7 @@ func NonInteractiveCaptureOutput(linesToCapture int, name string, args ...string
 			if len(lines) < linesToCapture {
 				lines = append(lines, line)
 			} else {
-				for i := 0; i < linesToCapture - 1; i++ {
+				for i := 0; i < linesToCapture-1; i++ {
 					lines[i] = lines[i+1]
 				}
 				lines[linesToCapture-1] = line

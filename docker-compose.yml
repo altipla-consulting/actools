@@ -131,16 +131,6 @@ services:
     build:
       context: containers/revive
 
-  dev-vue:
-    image: eu.gcr.io/altipla-tools/dev-vue:latest
-    build:
-      context: containers/dev-vue
-
-  vue:
-    image: eu.gcr.io/altipla-tools/vue:latest
-    build:
-      context: containers/vue
-
   firestore:
     image: eu.gcr.io/altipla-tools/firestore:latest
     build:

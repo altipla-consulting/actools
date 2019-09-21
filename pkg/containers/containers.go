@@ -244,25 +244,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "dev-vue",
-		Tools: []string{},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithStandardHome(),
-			docker.WithoutTTY(),
-		},
-	},
-	{
-		Image: "vue",
-		Tools: []string{"vue"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image:   "firestore",
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},
