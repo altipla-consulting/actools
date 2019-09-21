@@ -290,6 +290,18 @@ func List() []Container {
 	return containers
 }
 
+func FindContainerTool(tool string) Container {
+	for _, container := range containers {
+		for _, t := range container.Tools {
+			if t == tool {
+				return container
+			}
+		}
+	}
+
+	panic("should not reach here")
+}
+
 func FindImage(image string) (Container, error) {
 	for _, container := range containers {
 		if container.Image == image {

@@ -1,149 +1,156 @@
 package docker
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
+	"libs.altipla.consulting/errors"
 )
 
 type Watcher struct {
-	wg         *sync.WaitGroup
-	notifyExit chan struct{}
+	sync.Mutex
+	g     *errgroup.Group
+	stop  map[string]chan struct{}
+	ended chan struct{}
 }
 
 func NewWatcher() *Watcher {
 	return &Watcher{
-		wg:         new(sync.WaitGroup),
-		notifyExit: make(chan struct{}),
+		g:     new(errgroup.Group),
+		stop:  make(map[string]chan struct{}),
+		ended: make(chan struct{}),
 	}
 }
 
 func (watcher *Watcher) Run(serviceName string, container *ContainerManager) {
-	watcher.wg.Add(1)
-	go runForeground(watcher.wg, watcher.notifyExit, serviceName, container)
+	watcher.Lock()
+	defer watcher.Unlock()
+
+	if watcher.stop[serviceName] != nil {
+		panic("repeated service: " + serviceName)
+	}
+	watcher.stop[serviceName] = make(chan struct{})
+
+	watcher.g.Go(runForeground(watcher.g, watcher.ended, watcher.stop[serviceName], serviceName, container))
 }
 
-func (watcher *Watcher) Wait() {
-	go func() {
-		c := make(chan os.Signal)
-		signal.Notify(c, os.Interrupt)
-		for range c {
-			// Newline to always jump the next log we emit.
-			fmt.Println()
+func (watcher *Watcher) StopAll() error {
+	watcher.Lock()
+	defer watcher.Unlock()
 
-			// Enter a loop until all the containers exits and the main closes the whole app directly.
-			for {
-				watcher.notifyExit <- struct{}{}
+	for _, ch := range watcher.stop {
+		ch <- struct{}{}
+		<-watcher.ended
+	}
+
+	return errors.Trace(watcher.g.Wait())
+}
+
+func (watcher *Watcher) WaitInterrupt() error {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+	for range c {
+		// Newline to always jump the next log we emit.
+		fmt.Println()
+
+		// Enter a loop until all the containers exit.
+		for _, ch := range watcher.stop {
+			ch <- struct{}{}
+		}
+
+		return errors.Trace(watcher.g.Wait())
+	}
+
+	return nil
+}
+
+func (watcher *Watcher) Stop(serviceName string) {
+	watcher.Lock()
+	defer watcher.Unlock()
+
+	stopCh, ok := watcher.stop[serviceName]
+	if ok {
+		stopCh <- struct{}{}
+		<-watcher.ended
+		delete(watcher.stop, serviceName)
+	}
+}
+
+func runForeground(g *errgroup.Group, ended, stopCh chan struct{}, serviceName string, container *ContainerManager) func() error {
+	return func() error {
+		defer func() {
+			ended <- struct{}{}
+		}()
+
+		reader, writer := io.Pipe()
+		defer reader.Close()
+		defer writer.Close()
+
+		g.Go(func() error {
+			scanner := bufio.NewScanner(reader)
+			for scanner.Scan() {
+				fmt.Println("(" + serviceName + ") " + scanner.Text())
 			}
-		}
-	}()
+			if err := scanner.Err(); err != nil && !errors.Is(err, io.ErrClosedPipe) {
+				return errors.Trace(err)
+			}
+			return nil
+		})
 
-	// Wait for all running services to finish.
-	watcher.wg.Wait()
-}
+		logger := log.WithField("service", serviceName)
+		logger.Info("Start service")
 
-func runForeground(wg *sync.WaitGroup, notifyExit chan struct{}, serviceName string, container *ContainerManager) {
-	defer wg.Done()
-
-	logger := log.WithField("service", serviceName)
-	logger.Info("Start service")
-
-	notifyErr := make(chan error, 1)
-	go func() {
 		if err := container.Create(); err != nil {
-			notifyErr <- err
-			return
+			return errors.Trace(err)
 		}
 
-		cmd := exec.Command("docker", "start", "-a", container.String())
+		log.Debug("Run container")
+		args := []string{"docker", "start", "-a", container.String()}
+		log.Debugln(strings.Join(args, " "))
+
+		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin = os.Stdin
-
-		loggerOut := log.New()
-		loggerOut.Formatter = newPrefixFormatter(serviceName)
-		loggerOut.SetLevel(log.StandardLogger().Level)
-		cmd.Stdout = &logrusWriter{logger: loggerOut}
-
-		loggerErr := log.New()
-		loggerErr.Formatter = newPrefixFormatter(serviceName)
-		loggerErr.SetLevel(log.StandardLogger().Level)
-		cmd.Stderr = &logrusWriter{logger: loggerErr, debug: true}
-
+		cmd.Stdout = writer
+		cmd.Stderr = writer
 		if err := cmd.Start(); err != nil {
-			notifyErr <- err
-			return
+			return errors.Trace(err)
 		}
-		if err := cmd.Wait(); err != nil {
-			if err.Error() == "signal: interrupt" {
+
+		<-stopCh
+
+		logger.Info("Stopping service")
+
+		timer := time.NewTimer(5 * time.Second)
+		stopped := make(chan bool, 1)
+		go func() {
+			if err := container.Stop(); err != nil {
+				log.WithFields(errors.LogFields(err)).Warning("Cannot stop container")
 				return
 			}
-
-			notifyErr <- err
-			return
+			cmd.Wait()
+			stopped <- true
+		}()
+		select {
+		case <-timer.C:
+			if err := container.Kill(); err != nil {
+				return errors.Trace(err)
+			}
+			logger.Warning("Service didn't exited on time and was killed")
+		case <-stopped:
+			if !timer.Stop() {
+				<-timer.C
+			}
 		}
-	}()
 
-	select {
-	case err := <-notifyErr:
-		logger.WithField("err", err.Error()).Error("Service failed")
-
-	case <-notifyExit:
-		logger.Info("Kill service")
-		if err := container.Kill(); err != nil {
-			logger.WithField("err", err.Error()).Error("Stop service failed")
-		}
+		return nil
 	}
-}
-
-type prefixFormatter struct {
-	t           *log.TextFormatter
-	serviceName string
-}
-
-func (f *prefixFormatter) Format(entry *log.Entry) ([]byte, error) {
-	entry.Message = fmt.Sprintf("(%s) %s", f.serviceName, entry.Message)
-
-	return f.t.Format(entry)
-}
-
-func newPrefixFormatter(serviceName string) *prefixFormatter {
-	return &prefixFormatter{
-		t:           new(log.TextFormatter),
-		serviceName: serviceName,
-	}
-}
-
-type logrusWriter struct {
-	logger *log.Logger
-	debug  bool
-}
-
-func (w *logrusWriter) Write(b []byte) (int, error) {
-	const maxLogSize = 64 * 1024
-
-	var result [][]byte
-	parts := bytes.Split(bytes.TrimSpace(b), []byte("\r\n"))
-	for _, part := range parts {
-		for len(part) > maxLogSize {
-			result = append(result, part[:maxLogSize])
-			part = part[maxLogSize:]
-		}
-
-		if len(part) > 0 {
-			result = append(result, part)
-		}
-	}
-	for _, line := range result {
-		if w.debug {
-			w.logger.Debug(string(line))
-		} else {
-			w.logger.Info(string(line))
-		}
-	}
-
-	return len(b), nil
 }

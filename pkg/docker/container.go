@@ -143,7 +143,7 @@ func (container *ContainerManager) Remove() error {
 }
 
 func (container *ContainerManager) Run(args ...string) error {
-	sh, err := container.buildCommand("run", args...)
+	sh, err := container.buildCommand(true, "run", args...)
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -151,7 +151,16 @@ func (container *ContainerManager) Run(args ...string) error {
 	return errors.Trace(run.InteractiveWithOutput("docker", sh...))
 }
 
-func (container *ContainerManager) buildCommand(operation string, args ...string) ([]string, error) {
+func (container *ContainerManager) RunNonInteractive(args ...string) error {
+	sh, err := container.buildCommand(false, "run", args...)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	return errors.Trace(run.NonInteractiveWithOutput("docker", sh...))
+}
+
+func (container *ContainerManager) buildCommand(interactive bool, operation string, args ...string) ([]string, error) {
 	// Creamos la red del contenedor si no existía previamente
 	if container.network != nil {
 		if err := container.network.CreateIfNotExists(); err != nil {
@@ -166,8 +175,12 @@ func (container *ContainerManager) buildCommand(operation string, args ...string
 
 	var sh []string
 
+	sh = append(sh, operation)
+
 	// Ejecutamos interactivamente.
-	sh = append(sh, operation, "-i")
+	if interactive {
+		sh = append(sh, "-i")
+	}
 
 	// La terminal solo la podemos activar en local cuando ejecutamos comandos directamente.
 	if !container.noTTY && terminal.IsTerminal(int(os.Stdout.Fd())) {
@@ -243,7 +256,7 @@ func (container *ContainerManager) Create(args ...string) error {
 		return nil
 	}
 
-	sh, err := container.buildCommand("create", args...)
+	sh, err := container.buildCommand(true, "create", args...)
 	if err != nil {
 		return errors.Trace(err)
 	}

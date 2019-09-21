@@ -145,9 +145,7 @@ func startCommand(args []string) error {
 		watcher.Run(service, container)
 	}
 
-	watcher.Wait()
-
-	return nil
+	return errors.Trace(watcher.WaitInterrupt())
 }
 
 func resolveDeps(args []string) ([]string, []string, error) {
