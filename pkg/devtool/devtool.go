@@ -22,6 +22,8 @@ import (
 	"github.com/altipla-consulting/actools/pkg/notify"
 )
 
+const changeDelay = 1 * time.Second
+
 var (
 	compileCh = make(chan string)
 )
@@ -61,7 +63,8 @@ func Run(apps []string) error {
 		restartCh := make(chan struct{})
 		restartChs[app] = restartCh
 
-		g.Go(sourceCodeWatcher(ctx, app, restartCh))
+		g.Go(sourceCodeWatcher(ctx, app))
+		g.Go(configWatcher(ctx, app, restartCh))
 		g.Go(serviceRunner(ctx, app, watcher, restartCh))
 	}
 
@@ -98,7 +101,7 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 				if timer != nil && !timer.Stop() {
 					<-timer.C
 				}
-				timer = time.NewTimer(500 * time.Millisecond)
+				timer = time.NewTimer(changeDelay)
 
 			case <-timerCh:
 				timer = nil
@@ -161,7 +164,7 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 	return nil
 }
 
-func sourceCodeWatcher(ctx context.Context, app string, restartCh chan struct{}) func() error {
+func sourceCodeWatcher(ctx context.Context, app string) func() error {
 	return func() error {
 		watcher, err := fsnotify.NewWatcher()
 		if err != nil {
@@ -212,7 +215,7 @@ func sourceCodeWatcher(ctx context.Context, app string, restartCh chan struct{})
 						log.WithFields(log.Fields{
 							"path": ev.Name,
 							"app":  app,
-						}).Debug("New file detected")
+						}).Debug("New source code file detected")
 						if err := processChange(app, ev.Name); err != nil {
 							return errors.Trace(err)
 						}
@@ -222,11 +225,77 @@ func sourceCodeWatcher(ctx context.Context, app string, restartCh chan struct{})
 					log.WithFields(log.Fields{
 						"path": ev.Name,
 						"app":  app,
-					}).Debug("File change detected")
+					}).Debug("Source code file change detected")
 					if err := processChange(app, ev.Name); err != nil {
 						return errors.Trace(err)
 					}
 				}
+			}
+		}
+
+		return nil
+	}
+}
+
+func configWatcher(ctx context.Context, app string, restartCh chan struct{}) func() error {
+	return func() error {
+		watcher, err := fsnotify.NewWatcher()
+		if err != nil {
+			return errors.Trace(err)
+		}
+
+		walkFn := func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return errors.Trace(err)
+			}
+			if !info.IsDir() {
+				return nil
+			}
+
+			log.WithField("path", path).Debug("Watching directory for changes")
+			if err := watcher.Add(path); err != nil {
+				return errors.Trace(err)
+			}
+
+			return nil
+		}
+
+		svc := config.Settings.Services[app]
+		for _, volume := range svc.Volumes {
+			path := strings.Split(volume, ":")[0]
+			if err := filepath.Walk(path, walkFn); err != nil {
+				return errors.Trace(err)
+			}
+		}
+
+		var timer *time.Timer
+		var timerCh <-chan time.Time
+		for {
+			timerCh = nil
+			if timer != nil {
+				timerCh = timer.C
+			}
+
+			select {
+			case <-ctx.Done():
+				return nil
+
+			case err := <-watcher.Errors:
+				return errors.Trace(err)
+
+			case ev := <-watcher.Events:
+				log.WithFields(log.Fields{
+					"path": ev.Name,
+					"app":  app,
+				}).Debug("Config file change detected")
+				if timer != nil && !timer.Stop() {
+					<-timer.C
+				}
+				timer = time.NewTimer(changeDelay)
+
+			case <-timerCh:
+				timer = nil
+				restartCh <- struct{}{}
 			}
 		}
 
