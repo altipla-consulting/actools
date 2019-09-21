@@ -6,6 +6,7 @@ import (
 	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/update"
+	"github.com/altipla-consulting/actools/pkg/config"
 )
 
 var debugApp bool
@@ -22,6 +23,10 @@ var CmdRoot = &cobra.Command{
 		if debugApp {
 			log.SetLevel(log.DebugLevel)
 			log.Debug("DEBUG log level activated")
+		}
+
+		if config.Development() {
+			log.Warning("Running development version. To download a production version run: curl https://tools.altipla.consulting/install/actools | bash")
 		}
 
 		if err := update.Check(); err != nil {
