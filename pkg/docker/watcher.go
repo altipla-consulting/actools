@@ -48,7 +48,10 @@ func (watcher *Watcher) StopAll() error {
 
 	for _, ch := range watcher.stop {
 		ch <- struct{}{}
+	}
+	for serviceName := range watcher.stop {
 		<-watcher.ended
+		delete(watcher.stop, serviceName)
 	}
 
 	return errors.Trace(watcher.g.Wait())
