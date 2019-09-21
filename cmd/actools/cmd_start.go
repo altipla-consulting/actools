@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -10,10 +11,12 @@ import (
 	"github.com/altipla-consulting/collections"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 	"libs.altipla.consulting/errors"
 
 	"github.com/altipla-consulting/actools/pkg/config"
 	"github.com/altipla-consulting/actools/pkg/containers"
+	"github.com/altipla-consulting/actools/pkg/devtool"
 	"github.com/altipla-consulting/actools/pkg/docker"
 )
 
@@ -88,8 +91,24 @@ func startCommand(args []string) error {
 		}
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g, ctx := errgroup.WithContext(ctx)
+
 	watcher := docker.NewWatcher()
+	g.Go(func() error {
+		<-ctx.Done()
+		return errors.Trace(watcher.StopAll())
+	})
+
+	var goapps []string
 	for _, service := range services {
+		if config.Settings.Services[service].Type == "go" {
+			goapps = append(goapps, service)
+			continue
+		}
+
 		containerDesc, err := containers.FindImage(fmt.Sprintf("dev-%s", config.Settings.Services[service].Type))
 		if err != nil {
 			return errors.Trace(err)
@@ -146,15 +165,21 @@ func startCommand(args []string) error {
 
 		watcher.Run(service, container)
 	}
+	if len(goapps) > 0 {
+		if err := devtool.Run(ctx, g, watcher, goapps); err != nil {
+			return errors.Trace(err)
+		}
+	}
 
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)
 	for range c {
 		// Newline to always jump the next log we emit.
 		fmt.Println()
+		cancel()
 		break
 	}
-	return errors.Trace(watcher.StopAll())
+	return errors.Trace(g.Wait())
 }
 
 func resolveDeps(args []string) ([]string, []string, error) {

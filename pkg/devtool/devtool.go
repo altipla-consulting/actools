@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -28,36 +27,7 @@ var (
 	compileCh = make(chan string)
 )
 
-func Run(apps []string) error {
-	for _, app := range apps {
-		if config.Settings.Services[app] == nil {
-			return errors.Errorf("service not found: %s", app)
-		}
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	g, ctx := errgroup.WithContext(ctx)
-
-	watcher := docker.NewWatcher()
-	g.Go(func() error {
-		c := make(chan os.Signal)
-		signal.Notify(c, os.Interrupt)
-		for range c {
-			// Newline to always jump the next log we emit.
-			fmt.Println()
-
-			if err := watcher.StopAll(); err != nil {
-				return errors.Trace(err)
-			}
-
-			cancel()
-			return nil
-		}
-
-		return nil
-	})
-
+func Run(ctx context.Context, g *errgroup.Group, watcher *docker.Watcher, apps []string) error {
 	restartChs := make(map[string]chan struct{})
 	for _, app := range apps {
 		restartCh := make(chan struct{})
@@ -75,7 +45,7 @@ func Run(apps []string) error {
 		compileCh <- app
 	}
 
-	return errors.Trace(g.Wait())
+	return nil
 }
 
 func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() error {
