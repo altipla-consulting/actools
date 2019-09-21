@@ -168,8 +168,19 @@ func sourceCodeWatcher(ctx context.Context, app string) func() error {
 
 			return nil
 		}
+
+		// Watch app source code folder.
 		if err := filepath.Walk(svc.Workdir, walkFn); err != nil {
 			return errors.Trace(err)
+		}
+
+		// Watch a root pkg folder with Go libs if it exists.
+		if _, err := os.Stat("pkg"); err != nil && !os.IsNotExist(err) {
+			return errors.Trace(err)
+		} else if err == nil {
+			if err := filepath.Walk("/workspace/pkg", walkFn); err != nil {
+				return errors.Trace(err)
+			}
 		}
 
 		for {
