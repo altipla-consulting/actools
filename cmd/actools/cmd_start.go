@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 
@@ -145,7 +147,14 @@ func startCommand(args []string) error {
 		watcher.Run(service, container)
 	}
 
-	return errors.Trace(watcher.WaitInterrupt())
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+	for range c {
+		// Newline to always jump the next log we emit.
+		fmt.Println()
+		break
+	}
+	return errors.Trace(watcher.StopAll())
 }
 
 func resolveDeps(args []string) ([]string, []string, error) {

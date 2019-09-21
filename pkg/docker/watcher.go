@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
 	"sync"
 	"time"
@@ -53,24 +52,6 @@ func (watcher *Watcher) StopAll() error {
 	}
 
 	return errors.Trace(watcher.g.Wait())
-}
-
-func (watcher *Watcher) WaitInterrupt() error {
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt)
-	for range c {
-		// Newline to always jump the next log we emit.
-		fmt.Println()
-
-		// Enter a loop until all the containers exit.
-		for _, ch := range watcher.stop {
-			ch <- struct{}{}
-		}
-
-		return errors.Trace(watcher.g.Wait())
-	}
-
-	return nil
 }
 
 func (watcher *Watcher) Stop(serviceName string) {
