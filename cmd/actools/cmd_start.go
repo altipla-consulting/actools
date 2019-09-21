@@ -85,101 +85,105 @@ func startCommand(args []string) error {
 			return errors.Trace(err)
 		}
 
-		log.WithField("service", tool).Info("Start service")
+		log.WithField("tool", tool).Info("Start tool")
 		if err := container.Start(config.Settings.Tools[tool].Args...); err != nil {
 			return errors.Trace(err)
 		}
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	if len(services) > 0 {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	g, ctx := errgroup.WithContext(ctx)
+		g, ctx := errgroup.WithContext(ctx)
 
-	watcher := docker.NewWatcher()
-	g.Go(func() error {
-		<-ctx.Done()
-		return errors.Trace(watcher.StopAll())
-	})
+		watcher := docker.NewWatcher()
+		g.Go(func() error {
+			<-ctx.Done()
+			return errors.Trace(watcher.StopAll())
+		})
 
-	var goapps []string
-	for _, service := range services {
-		if config.Settings.Services[service].Type == "go" {
-			goapps = append(goapps, service)
-			continue
-		}
-
-		containerDesc, err := containers.FindImage(fmt.Sprintf("dev-%s", config.Settings.Services[service].Type))
-		if err != nil {
-			return errors.Trace(err)
-		}
-
-		options := []docker.ContainerOption{
-			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
-			docker.WithDefaultNetwork(),
-			docker.WithPersistence(),
-			docker.WithWorkdir(fmt.Sprintf("/workspace/%s", config.Settings.Services[service].Workdir)),
-			docker.WithNetworkAlias(service),
-			docker.WithEnv("PROJECT", config.Settings.Project),
-			docker.WithEnv("WORKDIR", config.Settings.Services[service].Workdir),
-			docker.WithEnv("SERVICE", service),
-		}
-		options = append(options, containerDesc.Options...)
-
-		for _, port := range config.Settings.Services[service].Ports {
-			parts := strings.Split(port, ":")
-			if len(parts) != 2 {
-				return errors.Errorf("invalid ports of service: %s", service)
+		var goapps []string
+		for _, service := range services {
+			if config.Settings.Services[service].Type == "go" {
+				goapps = append(goapps, service)
+				continue
 			}
 
-			source, err := strconv.ParseInt(parts[0], 10, 64)
+			containerDesc, err := containers.FindImage(fmt.Sprintf("dev-%s", config.Settings.Services[service].Type))
 			if err != nil {
-				return errors.Wrapf(err, "invalid port number: %s", parts[0])
+				return errors.Trace(err)
 			}
 
-			inside, err := strconv.ParseInt(parts[1], 10, 64)
+			options := []docker.ContainerOption{
+				docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
+				docker.WithDefaultNetwork(),
+				docker.WithPersistence(),
+				docker.WithWorkdir(fmt.Sprintf("/workspace/%s", config.Settings.Services[service].Workdir)),
+				docker.WithNetworkAlias(service),
+				docker.WithEnv("PROJECT", config.Settings.Project),
+				docker.WithEnv("WORKDIR", config.Settings.Services[service].Workdir),
+				docker.WithEnv("SERVICE", service),
+			}
+			options = append(options, containerDesc.Options...)
+
+			for _, port := range config.Settings.Services[service].Ports {
+				parts := strings.Split(port, ":")
+				if len(parts) != 2 {
+					return errors.Errorf("invalid ports of service: %s", service)
+				}
+
+				source, err := strconv.ParseInt(parts[0], 10, 64)
+				if err != nil {
+					return errors.Wrapf(err, "invalid port number: %s", parts[0])
+				}
+
+				inside, err := strconv.ParseInt(parts[1], 10, 64)
+				if err != nil {
+					return errors.Wrapf(err, "invalid port number: %s", parts[1])
+				}
+
+				options = append(options, docker.WithPort(source, inside))
+			}
+
+			for _, volume := range config.Settings.Services[service].Volumes {
+				parts := strings.Split(volume, ":")
+				if len(parts) != 2 {
+					return errors.Errorf("invalid volumes of service: %s", service)
+				}
+
+				options = append(options, docker.WithVolume(parts[0], parts[1]))
+			}
+
+			for k, v := range config.Settings.Services[service].Env {
+				options = append(options, docker.WithEnv(k, v))
+			}
+
+			container, err := docker.Container(service, options...)
 			if err != nil {
-				return errors.Wrapf(err, "invalid port number: %s", parts[1])
+				return errors.Trace(err)
 			}
 
-			options = append(options, docker.WithPort(source, inside))
+			watcher.Run(service, container)
 		}
-
-		for _, volume := range config.Settings.Services[service].Volumes {
-			parts := strings.Split(volume, ":")
-			if len(parts) != 2 {
-				return errors.Errorf("invalid volumes of service: %s", service)
+		if len(goapps) > 0 {
+			if err := devtool.Run(ctx, g, watcher, goapps); err != nil {
+				return errors.Trace(err)
 			}
-
-			options = append(options, docker.WithVolume(parts[0], parts[1]))
 		}
 
-		for k, v := range config.Settings.Services[service].Env {
-			options = append(options, docker.WithEnv(k, v))
+		c := make(chan os.Signal)
+		signal.Notify(c, os.Interrupt)
+		for range c {
+			// Newline to always jump the next log we emit.
+			fmt.Println()
+			cancel()
+			break
 		}
-
-		container, err := docker.Container(service, options...)
-		if err != nil {
-			return errors.Trace(err)
-		}
-
-		watcher.Run(service, container)
-	}
-	if len(goapps) > 0 {
-		if err := devtool.Run(ctx, g, watcher, goapps); err != nil {
-			return errors.Trace(err)
-		}
+		return errors.Trace(g.Wait())
 	}
 
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt)
-	for range c {
-		// Newline to always jump the next log we emit.
-		fmt.Println()
-		cancel()
-		break
-	}
-	return errors.Trace(g.Wait())
+	return nil
 }
 
 func resolveDeps(args []string) ([]string, []string, error) {
