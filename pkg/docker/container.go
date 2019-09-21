@@ -160,6 +160,16 @@ func (container *ContainerManager) RunNonInteractive(args ...string) error {
 	return errors.Trace(run.NonInteractiveWithOutput("docker", sh...))
 }
 
+func (container *ContainerManager) RunNonInteractiveCaptureOutput(lineToCapture int, args ...string) ([]string, error) {
+	sh, err := container.buildCommand(false, "run", args...)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	lines, err := run.NonInteractiveCaptureOutput(lineToCapture, "docker", sh...)
+	return lines, errors.Trace(err)
+}
+
 func (container *ContainerManager) buildCommand(interactive bool, operation string, args ...string) ([]string, error) {
 	// Creamos la red del contenedor si no existía previamente
 	if container.network != nil {

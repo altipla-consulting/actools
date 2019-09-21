@@ -121,28 +121,33 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 					}
 
 					svc := config.Settings.Services[app]
-					if err := container.RunNonInteractive("go", "install", "./"+svc.Workdir); err != nil {
+					lines, err := container.RunNonInteractiveCaptureOutput(15, "go", "install", "./"+svc.Workdir)
+					if err != nil {
 						exit, ok := errors.Cause(err).(*exec.ExitError)
 						if !ok {
 							return errors.Trace(err)
 						}
 
+						log.Println(lines)
 						log.WithFields(log.Fields{
 							"app":       app,
 							"exit-code": exit.ExitCode(),
 						}).Error("App compilation failed")
 
-						if err := notify.Send(app, "La compilación ha fallado. Mira la terminal para más información.", notify.IconError); err != nil {
-							return errors.Trace(err)
+						if len(lines) > 0 {
+							if err := notify.Send(app, strings.Join(lines, "\n"), notify.IconError); err != nil {
+								return errors.Trace(err)
+							}
 						}
 						wasFailing[app] = true
 
-						continue
+						// Do not continue compiling anything more until the next change.
+						break
 					}
 
 					if wasFailing[app] {
 						wasFailing[app] = false
-						if err := notify.Send(app, "La compilación va correctamente.", notify.IconInfo); err != nil {
+						if err := notify.Send(app, "Compilado correctamente.", notify.IconInfo); err != nil {
 							return errors.Trace(err)
 						}
 					}
