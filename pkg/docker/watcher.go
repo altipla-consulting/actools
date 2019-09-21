@@ -70,6 +70,8 @@ func (watcher *Watcher) Stop(serviceName string) {
 }
 
 func runForeground(g *errgroup.Group, ended, stopCh chan struct{}, serviceName string, container *ContainerManager) func() error {
+	wait := 1 * time.Second
+
 	return func() error {
 		defer func() {
 			ended <- struct{}{}
@@ -90,51 +92,68 @@ func runForeground(g *errgroup.Group, ended, stopCh chan struct{}, serviceName s
 			return nil
 		})
 
-		logger := log.WithField("service", serviceName)
-		logger.Info("Start service")
+		for {
+			logger := log.WithField("service", serviceName)
+			logger.Info("Start service")
 
-		if err := container.Create(); err != nil {
-			return errors.Trace(err)
-		}
-
-		log.Debug("Run container")
-		args := []string{"docker", "start", "-a", container.String()}
-		log.Debugln(strings.Join(args, " "))
-
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = writer
-		cmd.Stderr = writer
-		if err := cmd.Start(); err != nil {
-			return errors.Trace(err)
-		}
-
-		<-stopCh
-
-		logger.Info("Stopping service")
-
-		timer := time.NewTimer(5 * time.Second)
-		stopped := make(chan bool, 1)
-		go func() {
-			if err := container.Stop(); err != nil {
-				log.WithFields(errors.LogFields(err)).Warning("Cannot stop container")
-				return
-			}
-			cmd.Wait()
-			stopped <- true
-		}()
-		select {
-		case <-timer.C:
-			if err := container.Kill(); err != nil {
+			if err := container.Create(); err != nil {
 				return errors.Trace(err)
 			}
-			logger.Warning("Service didn't exited on time and was killed")
-		case <-stopped:
-			if !timer.Stop() {
-				<-timer.C
+
+			log.Debug("Run container")
+			args := []string{"docker", "start", "-a", container.String()}
+			log.Debugln(strings.Join(args, " "))
+
+			cmd := exec.Command(args[0], args[1:]...)
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = writer
+			cmd.Stderr = writer
+			if err := cmd.Start(); err != nil {
+				return errors.Trace(err)
+			}
+
+			failureCh := make(chan struct{}, 1)
+			go func() {
+				cmd.Wait()
+				failureCh <- struct{}{}
+			}()
+
+			select {
+			case <-failureCh:
+				logger.Errorf("Service was restarted, waiting %s and retrying again", wait)
+				if wait < 8*time.Second {
+					wait = 2 * wait
+				}
+				time.Sleep(wait)
+				continue
+
+			case <-stopCh:
+				logger.Info("Stopping service")
+
+				timer := time.NewTimer(5 * time.Second)
+				stopped := make(chan bool, 1)
+				go func() {
+					if err := container.Stop(); err != nil {
+						log.WithFields(errors.LogFields(err)).Warning("Cannot stop container")
+						return
+					}
+					cmd.Wait()
+					stopped <- true
+				}()
+				select {
+				case <-timer.C:
+					if err := container.Kill(); err != nil {
+						return errors.Trace(err)
+					}
+					logger.Warning("Service didn't exited on time and was killed")
+				case <-stopped:
+					if !timer.Stop() {
+						<-timer.C
+					}
+				}
+
+				return nil
 			}
 		}
-
-		return nil
 	}
 }

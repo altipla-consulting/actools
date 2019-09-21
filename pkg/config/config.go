@@ -49,7 +49,7 @@ type Service struct {
 	Workdir string            `yaml:"workdir"`
 	Volumes []string          `yaml:"volumes"`
 	Env     map[string]string `yaml:"env"`
-	Ignore []string `yaml:"ignore"`
+	Ignore  []string          `yaml:"ignore"`
 }
 
 type Tool struct {
