@@ -91,7 +91,7 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 					}
 					options = append(options, tool.Options...)
 
-					container, err := docker.Container(fmt.Sprintf("tool-%s-go", tool.Image), options...)
+					container, err := docker.Container(fmt.Sprintf("devtool-%s-go", tool.Image), options...)
 					if err != nil {
 						return errors.Trace(err)
 					}
