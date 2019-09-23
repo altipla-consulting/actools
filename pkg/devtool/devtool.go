@@ -48,13 +48,27 @@ func Run(ctx context.Context, g *errgroup.Group, watcher *docker.Watcher, apps [
 	return nil
 }
 
+type compilationFailure struct {
+	app    string
+	output []string
+}
+
 func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() error {
 	return func() error {
 		pending := map[string]bool{}
 		var timer *time.Timer
 		var timerCh <-chan time.Time
 		wasFailing := map[string]bool{}
+		working := make(map[string]bool)
 
+		sendCompilationCh := make(chan string)
+		successCh := make(chan string)
+		failureCh := make(chan *compilationFailure)
+		for i := 0; i < 6; i++ {
+			go compilerWorker(ctx, i, sendCompilationCh, successCh, failureCh)
+		}
+
+		first := true
 		for {
 			timerCh = nil
 			if timer != nil {
@@ -75,65 +89,114 @@ func compiler(ctx context.Context, restartChs map[string]chan struct{}) func() e
 
 			case <-timerCh:
 				timer = nil
-				for app := range pending {
-					delete(pending, app)
 
-					log.WithFields(log.Fields{
-						"app": app,
-						"pending": len(pending),
-					}).Info("Building app")
-
-					tool := containers.FindContainerTool("go")
-
-					options := []docker.ContainerOption{
-						docker.WithImage(docker.Image(containers.Repo, tool.Image)),
-						docker.WithDefaultNetwork(),
-					}
-					options = append(options, tool.Options...)
-
-					container, err := docker.Container(fmt.Sprintf("devtool-%s-go", tool.Image), options...)
-					if err != nil {
-						return errors.Trace(err)
-					}
-
-					svc := config.Settings.Services[app]
-					lines, err := container.RunNonInteractiveCaptureOutput(7, "go", "install", "./"+svc.Workdir)
-					if err != nil {
-						exit, ok := errors.Cause(err).(*exec.ExitError)
-						if !ok {
-							return errors.Trace(err)
+				// El flag global de failed hace que pasemos a considerar el trabajo
+				// ya lanzado y terminemos las compilaciones sin mandar ninguna más.
+				var failed bool
+				for (!failed && len(pending) > 0) || len(working) > 0 {
+					// Cogemos la primera compilación pendiente que encontremos, siempre
+					// que no haya fallado ya el proceso globalmente.
+					var first string
+					var ch chan string
+					if !failed {
+						for app := range pending {
+							ch = sendCompilationCh
+							first = app
+							break
 						}
+					}
 
-						log.WithFields(log.Fields{
-							"app":       app,
-							"exit-code": exit.ExitCode(),
-						}).Error("App compilation failed")
+					select {
+					// Mandamos una nueva compilación a un worker satisfactoriamente.
+					case ch <- first:
+						delete(pending, first)
+						working[first] = true
 
-						if len(lines) > 0 {
-							if err := notify.Send(app, strings.Join(lines, "\n"), notify.IconError); err != nil {
+					// El worker ha compilado correctamente su trabajo.
+					case app := <-successCh:
+						delete(working, app)
+
+						if wasFailing[app] {
+							wasFailing[app] = false
+							if err := notify.Send(app, "Compilado correctamente.", notify.IconInfo); err != nil {
 								return errors.Trace(err)
 							}
 						}
-						wasFailing[app] = true
 
-						// Do not continue compiling anything more until the next change.
-						break
-					}
+						restartChs[app] <- struct{}{}
 
-					if wasFailing[app] {
-						wasFailing[app] = false
-						if err := notify.Send(app, "Compilado correctamente.", notify.IconInfo); err != nil {
-							return errors.Trace(err)
+					// El worker no ha completar la compilación sin errores.
+					case fail := <-failureCh:
+						failed = true
+						delete(working, fail.app)
+						wasFailing[fail.app] = true
+
+						log.WithField("app", fail.app).Error("App compilation failed")
+
+						if len(fail.output) > 0 {
+							if err := notify.Send(fail.app, strings.Join(fail.output, "\n"), notify.IconError); err != nil {
+								return errors.Trace(err)
+							}
 						}
 					}
+				}
 
-					restartChs[app] <- struct{}{}
+				if first {
+					first = false
+					log.Warning("")
+					log.Warning("----------------------------------------------")
+					log.Warning("--- ALL COMPILATIONS FINISHED SUCCESSFULLY ---")
+					log.Warning("----------------------------------------------")
+					log.Warning("")
 				}
 			}
 		}
 	}
 
 	return nil
+}
+
+func compilerWorker(ctx context.Context, worker int, sendCompilationCh <-chan string, successCh chan<- string, failureCh chan<- *compilationFailure) {
+	tool := containers.FindContainerTool("go")
+
+	options := []docker.ContainerOption{
+		docker.WithImage(docker.Image(containers.Repo, tool.Image)),
+		docker.WithDefaultNetwork(),
+	}
+	options = append(options, tool.Options...)
+
+	container, err := docker.Container(fmt.Sprintf("devtool-%s-go-%d", tool.Image, worker), options...)
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case app := <-sendCompilationCh:
+			log.WithField("app", app).Info("Building app")
+
+			svc := config.Settings.Services[app]
+			lines, err := container.RunNonInteractiveCaptureOutput(7, "go", "install", "./"+svc.Workdir)
+			if err != nil {
+				if _, ok := errors.Cause(err).(*exec.ExitError); ok {
+					failureCh <- &compilationFailure{
+						app:    app,
+						output: lines,
+					}
+				} else {
+					failureCh <- &compilationFailure{
+						app:    app,
+						output: append(lines, "INTERNAL ERROR: "+err.Error()),
+					}
+				}
+			} else {
+				successCh <- app
+			}
+		}
+	}
 }
 
 func sourceCodeWatcher(ctx context.Context, app string) func() error {
