@@ -105,7 +105,6 @@ func runForeground(g *errgroup.Group, ended, stopCh chan struct{}, serviceName s
 			log.Debugln(strings.Join(args, " "))
 
 			cmd := exec.Command(args[0], args[1:]...)
-			cmd.Stdin = os.Stdin
 			cmd.Stdout = writer
 			cmd.Stderr = writer
 			if err := cmd.Start(); err != nil {
