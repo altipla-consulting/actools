@@ -92,6 +92,13 @@ func runForeground(g *errgroup.Group, ended, stopCh chan struct{}, serviceName s
 		})
 
 		for {
+			// Check before opening the app if we are exiting the application.
+			select {
+			case <-stopCh:
+				return nil
+			default:
+			}
+
 			logger := log.WithField("service", serviceName)
 			logger.Info("Start service")
 
@@ -119,10 +126,18 @@ func runForeground(g *errgroup.Group, ended, stopCh chan struct{}, serviceName s
 			select {
 			case <-failureCh:
 				logger.Errorf("Service was restarted, waiting %s and retrying again", wait)
+
+				// Wait "wait" time before restarting the app, doubling it every iteration
+				// until we reach 8 seconds. If the user wants to close the app do it immediately.
 				if wait < 8*time.Second {
 					wait = 2 * wait
 				}
-				time.Sleep(wait)
+				select {
+				case <-time.After(wait):
+				case <-stopCh:
+					return nil
+				}
+
 				continue
 
 			case <-stopCh:
