@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -406,22 +405,7 @@ func serviceRunner(ctx context.Context, app string, watcher *docker.Watcher, res
 				options = append(options, container.Options...)
 
 				for _, port := range svc.Ports {
-					parts := strings.Split(port, ":")
-					if len(parts) != 2 {
-						return errors.Errorf("invalid ports of service: %s", app)
-					}
-
-					source, err := strconv.ParseInt(parts[0], 10, 64)
-					if err != nil {
-						return errors.Wrapf(err, "invalid port number: %s", parts[0])
-					}
-
-					inside, err := strconv.ParseInt(parts[1], 10, 64)
-					if err != nil {
-						return errors.Wrapf(err, "invalid port number: %s", parts[1])
-					}
-
-					options = append(options, docker.WithPort(source, inside))
+					options = append(options, docker.WithPorts(port))
 				}
 
 				for _, volume := range svc.Volumes {

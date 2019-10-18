@@ -137,9 +137,9 @@ func WithSharedGcloud() ContainerOption {
 	}
 }
 
-func WithPort(source, inside int64) ContainerOption {
+func WithPorts(desc string) ContainerOption {
 	return func(container *ContainerManager) error {
-		container.ports[source] = inside
+		container.ports = append(container.ports, desc)
 		return nil
 	}
 }

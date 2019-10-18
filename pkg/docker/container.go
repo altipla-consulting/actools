@@ -23,7 +23,7 @@ type ContainerManager struct {
 	noTTY        bool
 	env          map[string]string
 	volumes      map[string]string
-	ports        map[int64]int64
+	ports        []string
 
 	// userWorkdir will overwrite workdir if specified
 	workdir     string
@@ -38,7 +38,6 @@ func Container(name string, options ...ContainerOption) (*ContainerManager, erro
 		noTTY:   config.Jenkins(),
 		env:     make(map[string]string),
 		volumes: make(map[string]string),
-		ports:   make(map[int64]int64),
 	}
 
 	for _, option := range options {
@@ -230,8 +229,8 @@ func (container *ContainerManager) buildCommand(interactive bool, operation stri
 	}
 
 	// Compartimos los puertos con la máquina.
-	for source, inside := range container.ports {
-		sh = append(sh, "-p", fmt.Sprintf("%d:%d", source, inside))
+	for _, port := range container.ports {
+		sh = append(sh, "-p", port)
 	}
 
 	for source, inside := range container.volumes {

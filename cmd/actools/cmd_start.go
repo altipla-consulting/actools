@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 
 	"github.com/altipla-consulting/collections"
@@ -53,22 +52,7 @@ func startCommand(args []string) error {
 		options = append(options, containerDesc.Options...)
 
 		for _, port := range config.Settings.Tools[tool].Ports {
-			parts := strings.Split(port, ":")
-			if len(parts) != 2 {
-				return errors.Errorf("invalid ports of tool: %s", tool)
-			}
-
-			source, err := strconv.ParseInt(parts[0], 10, 64)
-			if err != nil {
-				return errors.Wrapf(err, "invalid port number: %s", parts[0])
-			}
-
-			inside, err := strconv.ParseInt(parts[1], 10, 64)
-			if err != nil {
-				return errors.Wrapf(err, "invalid port number: %s", parts[1])
-			}
-
-			options = append(options, docker.WithPort(source, inside))
+			options = append(options, docker.WithPorts(port))
 		}
 
 		for _, volume := range config.Settings.Tools[tool].Volumes {
@@ -128,22 +112,7 @@ func startCommand(args []string) error {
 			options = append(options, containerDesc.Options...)
 
 			for _, port := range config.Settings.Services[service].Ports {
-				parts := strings.Split(port, ":")
-				if len(parts) != 2 {
-					return errors.Errorf("invalid ports of service: %s", service)
-				}
-
-				source, err := strconv.ParseInt(parts[0], 10, 64)
-				if err != nil {
-					return errors.Wrapf(err, "invalid port number: %s", parts[0])
-				}
-
-				inside, err := strconv.ParseInt(parts[1], 10, 64)
-				if err != nil {
-					return errors.Wrapf(err, "invalid port number: %s", parts[1])
-				}
-
-				options = append(options, docker.WithPort(source, inside))
+				options = append(options, docker.WithPorts(port))
 			}
 
 			for _, volume := range config.Settings.Services[service].Volumes {
