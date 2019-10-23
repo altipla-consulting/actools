@@ -164,6 +164,10 @@ func WithSharedGopath() ContainerOption {
 			if err := os.MkdirAll(cachePkg, 0777); err != nil {
 				return errors.Trace(err)
 			}
+
+			if os.Getenv("GOBIN") != "" {
+				container.env["GOBIN"] = os.Getenv("GOBIN")
+			}
 		}
 
 		return nil
