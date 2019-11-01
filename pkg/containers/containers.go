@@ -16,11 +16,6 @@ type Container struct {
 
 var containers = []Container{
 	{
-		Image:   "baster",
-		Tools:   []string{"baster"},
-		Options: []docker.ContainerOption{},
-	},
-	{
 		Image:   "envoy",
 		Tools:   []string{"envoy"},
 		Options: []docker.ContainerOption{},
