@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"libs.altipla.consulting/errors"
@@ -69,6 +70,9 @@ func createToolEntrypoint(containerDesc containers.Container, tool, workdir stri
 			docker.WithImage(docker.Image(containers.Repo, containerDesc.Image)),
 			docker.WithDefaultNetwork(),
 			docker.WithEnv("PROJECT", config.Settings.Project),
+
+			// Useful mostly for Jenkins.
+			docker.WithEnv("BUILD_NUMBER", os.Getenv("BUILD_NUMBER")),
 		}
 		options = append(options, containerDesc.Options...)
 		if workdir != "" {
