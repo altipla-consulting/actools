@@ -98,7 +98,9 @@ func WithSharedWorkspace() ContainerOption {
 
 func WithEnv(name, value string) ContainerOption {
 	return func(container *ContainerManager) error {
-		container.env[name] = value
+		if value != "" {
+			container.env[name] = value
+		}
 		return nil
 	}
 }
