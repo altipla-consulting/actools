@@ -110,16 +110,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image:   "influxdb",
-		Tools:   []string{"influxdb"},
-		Options: []docker.ContainerOption{},
-	},
-	{
-		Image:   "telegraf",
-		Tools:   []string{"telegraf"},
-		Options: []docker.ContainerOption{},
-	},
-	{
 		Image: "mysqldump",
 		Tools: []string{"mysqldump"},
 		Options: []docker.ContainerOption{

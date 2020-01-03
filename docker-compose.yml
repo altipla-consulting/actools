@@ -125,13 +125,3 @@ services:
     image: eu.gcr.io/altipla-tools/generic-tools:latest
     build:
       context: containers/generic-tools
-
-  influxdb:
-    image: eu.gcr.io/altipla-tools/influxdb:latest
-    build:
-      context: containers/influxdb
-
-  telegraf:
-    image: eu.gcr.io/altipla-tools/telegraf:latest
-    build:
-      context: containers/telegraf
