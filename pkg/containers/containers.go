@@ -102,16 +102,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "king",
-		Tools: []string{"king"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithSharedGopath(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image: "mysql",
 		Tools: []string{"mysql"},
 		Options: []docker.ContainerOption{

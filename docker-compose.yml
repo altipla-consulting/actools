@@ -51,11 +51,6 @@ services:
     build:
       context: containers/dev-go
 
-  king:
-    image: eu.gcr.io/altipla-tools/king:latest
-    build:
-      context: containers/king
-
   juice:
     image: eu.gcr.io/altipla-tools/juice:latest
     build:
