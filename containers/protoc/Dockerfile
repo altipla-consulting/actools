@@ -22,7 +22,7 @@ RUN git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
    git submodule update --init && \
    make grpc_php_plugin
 
-ENV CACHE_BUST 6
+ENV CACHE_BUST 7
 ENV GOPATH /gotools
 RUN go get -u github.com/golang/protobuf/proto && \
     go get -u github.com/golang/protobuf/protoc-gen-go && \
