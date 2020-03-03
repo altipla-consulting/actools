@@ -1,5 +1,5 @@
 
-FROM golang:1.14
+FROM golang:1.13
 
 ENV CACHE_BUST 1
 RUN go get -u github.com/mgechev/revive
