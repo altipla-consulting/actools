@@ -171,17 +171,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "jsonnet",
-		Tools: []string{"kubecfg", "jsonnet"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithSharedSSHSocket(),
-			docker.WithSharedGcloud(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image: "migrator",
 		Tools: []string{"migrator", "init-migrator"},
 		Options: []docker.ContainerOption{
