@@ -70,7 +70,7 @@ var CmdPull = &cobra.Command{
 				buf := bytes.NewBuffer(content)
 				fmt.Fprintln(buf)
 				fmt.Fprintln(buf, "export GOROOT=/usr/local/go")
-				fmt.Fprintln(buf, "export PATH=$PATH:/$GOROOT/bin")
+				fmt.Fprintln(buf, "export PATH=$PATH:$GOROOT/bin")
 
 				if err := ioutil.WriteFile(bashrc, buf.Bytes(), 0600); err != nil {
 					return errors.Trace(err)
