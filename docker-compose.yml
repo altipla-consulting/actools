@@ -1,5 +1,5 @@
 
-version: '2'
+version: '3.7'
 services:
   go:
     image: eu.gcr.io/altipla-tools/go:latest
