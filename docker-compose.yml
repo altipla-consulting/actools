@@ -71,11 +71,6 @@ services:
     build:
       context: containers/redis
   
-  pdfgen:
-    image: eu.gcr.io/altipla-tools/pdfgen:latest
-    build:
-      context: containers/pdfgen
-
   mysqldump:
     image: eu.gcr.io/altipla-tools/mysqldump:latest
     build:

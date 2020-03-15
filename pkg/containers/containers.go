@@ -130,11 +130,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image:   "pdfgen",
-		Tools:   []string{"pdfgen"},
-		Options: []docker.ContainerOption{},
-	},
-	{
 		Image:   "phpmyadmin",
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},
