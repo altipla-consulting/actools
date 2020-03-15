@@ -203,14 +203,6 @@ var containers = []Container{
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},
 	},
-	{
-		Image: "generic-tools",
-		Tools: []string{"validate-proto-http", "devmails"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithNetwork(docker.NetworkWithRealname("host")),
-		},
-	},
 }
 
 func Images() []string {
