@@ -179,14 +179,6 @@ var containers = []Container{
 		Options: []docker.ContainerOption{},
 	},
 	{
-		Image: "revive",
-		Tools: []string{"revive"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image:   "firestore",
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},

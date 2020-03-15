@@ -96,11 +96,6 @@ services:
     build:
       context: containers/prometheus
 
-  revive:
-    image: eu.gcr.io/altipla-tools/revive:latest
-    build:
-      context: containers/revive
-
   firestore:
     image: eu.gcr.io/altipla-tools/firestore:latest
     build:
