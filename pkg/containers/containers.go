@@ -145,13 +145,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "statik",
-		Tools: []string{"statik"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-		},
-	},
-	{
 		Image: "redis",
 		Tools: []string{"redis-cli"},
 		Options: []docker.ContainerOption{
