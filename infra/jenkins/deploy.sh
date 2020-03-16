@@ -15,8 +15,6 @@ run "gsutil -h 'Cache-Control: no-cache' cp actools gs://tools.altipla.consultin
 run "echo $(build-tag) > version"
 run "gsutil -h 'Cache-Control: no-cache' cp version gs://tools.altipla.consulting/version-manifest/actools"
 
-run "gsutil -h 'Cache-Control: no-cache' cp install/install.sh gs://tools.altipla.consulting/install/actools"
-
 for FILE in containers/*/Dockerfile; do
   APP=$(basename $(dirname $FILE))
   docker-build-autotag eu.gcr.io/$GOOGLE_PROJECT/$APP containers/$APP/Dockerfile containers/$APP
