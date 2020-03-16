@@ -27,7 +27,7 @@ func WithDefaultNetwork() ContainerOption {
 			return errors.Trace(err)
 		}
 
-		container.network = Network(filepath.Base(wd))
+		container.network = Network(filepath.Base(wd) + "_default")
 
 		return nil
 	}

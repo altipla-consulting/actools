@@ -12,10 +12,6 @@ type NetworkManager struct {
 }
 
 func Network(name string) *NetworkManager {
-	return NetworkWithRealname("actools_" + name)
-}
-
-func NetworkWithRealname(name string) *NetworkManager {
 	return &NetworkManager{name: name}
 }
 
