@@ -7,6 +7,6 @@
 Container tools to build and develop applications.
 
 
-### Install
+## Install
 
 Installation is automatic inside our [configure-dev-machine](https://github.com/altipla-consulting/configure-dev-machine) script.
