@@ -13,7 +13,7 @@ RUN groupadd --gid 1000 -r localgrp -o && \
     useradd --system --uid=1000 --gid=1000 --home-dir /home/container local1000 -o && \
     useradd --system --uid=1001 --gid=1000 --home-dir /home/container local1001 -o
 
-ENV CACHE_BUST v0.3.0
+ENV CACHE_BUST v0.3.1
 RUN go get github.com/altipla-consulting/reloader && \
     mv /go/bin/reloader /usr/local/bin/reloader
 
