@@ -16,7 +16,7 @@ var CmdUpdate = &cobra.Command{
 		log.Info()
 		log.Info("Run the following command to install the latest version:")
 		log.Info()
-		log.Info("\tcurl https://git.io/Jvihi | bash")
+		log.Info("\tcurl -L https://git.io/Jvihi | bash")
 		log.Info()
 
 		return nil
