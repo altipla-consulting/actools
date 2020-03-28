@@ -100,3 +100,8 @@ services:
     image: eu.gcr.io/altipla-tools/firestore:latest
     build:
       context: containers/firestore
+
+  pubsub:
+    image: eu.gcr.io/altipla-tools/pubsub:latest
+    build:
+      context: containers/pubsub

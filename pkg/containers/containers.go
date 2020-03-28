@@ -183,6 +183,11 @@ var containers = []Container{
 		Tools:   []string{},
 		Options: []docker.ContainerOption{},
 	},
+	{
+		Image:   "pubsub",
+		Tools:   []string{},
+		Options: []docker.ContainerOption{},
+	},
 }
 
 func Images() []string {
