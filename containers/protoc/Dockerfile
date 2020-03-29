@@ -24,10 +24,12 @@ RUN git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
 
 ENV CACHE_BUST 8
 ENV GOPATH /gotools
-RUN go get -u github.com/golang/protobuf/proto && \
-    go get -u github.com/golang/protobuf/protoc-gen-go && \
-    go get -u google.golang.org/grpc && \
-    go get -u github.com/altipla-consulting/protoc-gen-grpc_browser
+RUN go get github.com/golang/protobuf/proto && \
+    go get github.com/golang/protobuf/protoc-gen-go && \
+    go get google.golang.org/grpc && \
+    go get github.com/altipla-consulting/protoc-gen-grpc_browser && \
+    go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway && \
+    go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 RUN cd /gotools/src/github.com/golang/protobuf && \
     git checkout v1.3.4 && \
     go install ./...
