@@ -30,17 +30,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "dev-go",
-		Tools: []string{},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithSharedGopath(),
-			docker.WithSharedGcloud(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image: "dev-appengine",
 		Tools: []string{},
 		Options: []docker.ContainerOption{

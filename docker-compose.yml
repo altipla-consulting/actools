@@ -31,11 +31,6 @@ services:
     build:
       context: containers/mysql
 
-  dev-go:
-    image: eu.gcr.io/altipla-tools/dev-go:latest
-    build:
-      context: containers/dev-go
-
   juice:
     image: eu.gcr.io/altipla-tools/juice:latest
     build:
