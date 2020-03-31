@@ -152,13 +152,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "sass-lint",
-		Tools: []string{"sass-lint"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-		},
-	},
-	{
 		Image: "migrator",
 		Tools: []string{"migrator", "init-migrator"},
 		Options: []docker.ContainerOption{

@@ -26,11 +26,6 @@ services:
     build:
       context: containers/gulp
 
-  sass-lint:
-    image: eu.gcr.io/altipla-tools/sass-lint:latest
-    build:
-      context: containers/sass-lint
-
   phpmyadmin:
     image: eu.gcr.io/altipla-tools/phpmyadmin:latest
     build:
