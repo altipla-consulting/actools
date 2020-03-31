@@ -21,11 +21,6 @@ services:
     build:
       context: containers/gcloud
 
-  gulp:
-    image: eu.gcr.io/altipla-tools/gulp:latest
-    build:
-      context: containers/gulp
-
   phpmyadmin:
     image: eu.gcr.io/altipla-tools/phpmyadmin:latest
     build:
