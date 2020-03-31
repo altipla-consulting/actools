@@ -41,15 +41,6 @@ var containers = []Container{
 		},
 	},
 	{
-		Image: "dev-gulp",
-		Tools: []string{},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image: "dev-appengine",
 		Tools: []string{},
 		Options: []docker.ContainerOption{

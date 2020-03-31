@@ -41,11 +41,6 @@ services:
     build:
       context: containers/juice
 
-  dev-gulp:
-    image: eu.gcr.io/altipla-tools/dev-gulp:latest
-    build:
-      context: containers/dev-gulp
-
   cloudsqlproxy:
     image: eu.gcr.io/altipla-tools/cloudsqlproxy:latest
     build:
