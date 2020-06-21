@@ -22,12 +22,13 @@ RUN git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
    git submodule update --init && \
    make grpc_php_plugin
 
+RUN curl -L https://github.com/altipla-consulting/protoc-gen-grpc_browser/releases/download/v0.4.1/protoc-gen-grpc_browser_v0.4.1_linux_amd64 -o /usr/bin/protoc-gen-grpc_browser
+
 ENV CACHE_BUST 8
 ENV GOPATH /gotools
 RUN go get github.com/golang/protobuf/proto && \
     go get github.com/golang/protobuf/protoc-gen-go && \
     go get google.golang.org/grpc && \
-    go get github.com/altipla-consulting/protoc-gen-grpc_browser && \
     go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway && \
     go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 RUN cd /gotools/src/github.com/golang/protobuf && \
