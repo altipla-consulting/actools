@@ -1,0 +1,22 @@
+
+on: 
+  release:
+    types: [created]
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - run: sed -i "s/dev/$GITHUB_REF/g" pkg/config/version.go
+
+    - run: cat pkg/config/version.go
+
+    - run: docker-compose build
+
+    - uses: altipla-consulting/altipla.actions/go-release-1.14@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COMMAND: ./cmd/actools
