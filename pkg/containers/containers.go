@@ -16,16 +16,6 @@ type Container struct {
 
 var containers = []Container{
 	{
-		Image:   "acbins",
-		Tools:   []string{"reloader"},
-		Options: []docker.ContainerOption{
-			docker.WithSharedWorkspace(),
-			docker.WithLocalUser(),
-			docker.WithSharedGopath(),
-			docker.WithStandardHome(),
-		},
-	},
-	{
 		Image:   "envoy",
 		Tools:   []string{"envoy"},
 		Options: []docker.ContainerOption{},

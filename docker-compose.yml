@@ -85,8 +85,3 @@ services:
     image: eu.gcr.io/altipla-tools/pubsub:latest
     build:
       context: containers/pubsub
-
-  acbins:
-    image: eu.gcr.io/altipla-tools/acbins:latest
-    build:
-      context: containers/acbins
