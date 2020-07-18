@@ -13,23 +13,6 @@ import (
 )
 
 func init() {
-	var CmdApp = &cobra.Command{
-		Use:   "app",
-		Short: "Ejecuta una herramienta dentro de la carpeta de una aplicación",
-	}
-	CmdRoot.AddCommand(CmdApp)
-
-	CmdsApp := map[string]*cobra.Command{}
-	for name := range config.Settings.Services {
-		var CmdAppService = &cobra.Command{
-			Use:   name,
-			Short: fmt.Sprintf("Servicio %s", name),
-		}
-		CmdApp.AddCommand(CmdAppService)
-
-		CmdsApp[name] = CmdAppService
-	}
-
 	for _, container := range containers.List() {
 		for _, tool := range container.Tools {
 			var CmdToolDirect = &cobra.Command{
@@ -49,17 +32,6 @@ func init() {
 				RunE:                  createToolEntrypoint(container, tool, ""),
 			}
 			CmdDebug.AddCommand(CmdToolDebug)
-
-			for name, service := range config.Settings.Services {
-				var CmdAppServiceTool = &cobra.Command{
-					Use:                   tool,
-					Short:                 fmt.Sprintf("Herramienta %s [%s]", tool, container.Image),
-					DisableFlagParsing:    true,
-					DisableFlagsInUseLine: true,
-					RunE:                  createToolEntrypoint(container, tool, service.Workdir),
-				}
-				CmdsApp[name].AddCommand(CmdAppServiceTool)
-			}
 		}
 	}
 }
