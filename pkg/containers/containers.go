@@ -16,13 +16,22 @@ type Container struct {
 
 var containers = []Container{
 	{
+		Image:   "acbins",
+		Tools:   []string{"reloader"},
+		Options: []docker.ContainerOption{
+			docker.WithSharedWorkspace(),
+			docker.WithLocalUser(),
+			docker.WithSharedGopath(),
+			docker.WithStandardHome(),
+		},
+	},
+	{
 		Image:   "envoy",
 		Tools:   []string{"envoy"},
 		Options: []docker.ContainerOption{},
 	},
 	{
 		Image: "cloudsqlproxy",
-		Tools: []string{},
 		Options: []docker.ContainerOption{
 			docker.WithLocalUser(),
 			docker.WithSharedGcloud(),
@@ -31,7 +40,6 @@ var containers = []Container{
 	},
 	{
 		Image: "dev-appengine",
-		Tools: []string{},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithLocalUser(),
