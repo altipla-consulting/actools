@@ -148,28 +148,26 @@ func WithPorts(desc string) ContainerOption {
 
 func WithSharedGopath() ContainerOption {
 	return func(container *ContainerManager) error {
-		if config.ProjectPackage() != "" {
-			hostBin := fmt.Sprintf("%s/.actools/cache-%s/bin", config.Home(), config.ProjectName())
-			container.volumes[hostBin] = "/go/bin"
-			if err := os.MkdirAll(hostBin, 0777); err != nil {
-				return errors.Trace(err)
-			}
+		hostBin := fmt.Sprintf("%s/.actools/cache-%s/bin", config.Home(), config.ProjectName())
+		container.volumes[hostBin] = "/go/bin"
+		if err := os.MkdirAll(hostBin, 0777); err != nil {
+			return errors.Trace(err)
+		}
 
-			hostPkg := fmt.Sprintf("%s/.actools/cache-%s/pkg", config.Home(), config.ProjectName())
-			container.volumes[hostPkg] = "/go/pkg"
-			if err := os.MkdirAll(hostPkg, 0777); err != nil {
-				return errors.Trace(err)
-			}
+		hostPkg := fmt.Sprintf("%s/.actools/cache-%s/pkg", config.Home(), config.ProjectName())
+		container.volumes[hostPkg] = "/go/pkg"
+		if err := os.MkdirAll(hostPkg, 0777); err != nil {
+			return errors.Trace(err)
+		}
 
-			cachePkg := fmt.Sprintf("%s/.actools/cache-%s/cache", config.Home(), config.ProjectName())
-			container.volumes[cachePkg] = "/home/container/.cache"
-			if err := os.MkdirAll(cachePkg, 0777); err != nil {
-				return errors.Trace(err)
-			}
+		cachePkg := fmt.Sprintf("%s/.actools/cache-%s/cache", config.Home(), config.ProjectName())
+		container.volumes[cachePkg] = "/home/container/.cache"
+		if err := os.MkdirAll(cachePkg, 0777); err != nil {
+			return errors.Trace(err)
+		}
 
-			if os.Getenv("GOBIN") != "" {
-				container.env["GOBIN"] = os.Getenv("GOBIN")
-			}
+		if os.Getenv("GOBIN") != "" {
+			container.env["GOBIN"] = os.Getenv("GOBIN")
 		}
 
 		return nil
