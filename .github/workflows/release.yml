@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
-    - run: sed -i "s/dev/$GITHUB_REF/g" pkg/config/version.go
+    - run: sed -i "s~dev~$GITHUB_REF~g" pkg/config/version.go
 
     - run: cat pkg/config/version.go
 
