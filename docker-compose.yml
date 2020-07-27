@@ -85,3 +85,8 @@ services:
     image: eu.gcr.io/altipla-tools/pubsub:latest
     build:
       context: containers/pubsub
+
+  ravendb:
+    image: eu.gcr.io/altipla-tools/ravendb:latest
+    build:
+      context: containers/ravendb
