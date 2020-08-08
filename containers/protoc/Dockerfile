@@ -1,5 +1,5 @@
 
-FROM golang:1.13
+FROM golang:1.14.7
 
 RUN apt-get update && \
     apt-get install -y unzip build-essential zlib1g-dev autoconf libtool
