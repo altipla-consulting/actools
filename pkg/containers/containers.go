@@ -133,6 +133,7 @@ var containers = []Container{
 		Tools: []string{"php", "phpunit", "composer"},
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
+			docker.WithSharedGcloud(),
 		},
 	},
 	{
