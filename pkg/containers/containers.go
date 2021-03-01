@@ -134,6 +134,7 @@ var containers = []Container{
 		Options: []docker.ContainerOption{
 			docker.WithSharedWorkspace(),
 			docker.WithSharedGcloud(),
+			docker.WithStandardHome(),
 		},
 	},
 	{

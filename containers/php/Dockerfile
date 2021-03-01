@@ -13,4 +13,3 @@ RUN /opt/install.sh
 
 RUN wget -O phpunit https://phar.phpunit.de/phpunit-7.phar && \
     chmod +x phpunit
-
