@@ -30,13 +30,14 @@ RUN curl -L https://github.com/altipla-consulting/protoc-gen-grpc_browser/releas
 
 ENV CACHE_BUST 8
 ENV GOPATH /gotools
-RUN go get github.com/golang/protobuf/proto && \
-    go get github.com/golang/protobuf/protoc-gen-go && \
+RUN go get google.golang.org/protobuf/proto && \
+    go get google.golang.org/protobuf/cmd/protoc-gen-go && \
     go get google.golang.org/grpc && \
+    go get google.golang.org/grpc/cmd/protoc-gen-go-grpc && \
     go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway && \
     go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2
-RUN cd /gotools/src/github.com/golang/protobuf && \
-    git checkout v1.3.4 && \
+RUN cd /gotools/src/google.golang.org/protobuf && \
+    git checkout v1.25.0 && \
     go install ./...
 ENV GOPATH /go
 
