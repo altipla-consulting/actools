@@ -13,7 +13,7 @@ RUN groupadd --gid 1000 -r localgrp -o && \
     useradd --system --uid=1000 --gid=1000 --home-dir /home/container local1000 -o && \
     useradd --system --uid=1001 --gid=1000 --home-dir /home/container local1001 -o
 
-RUN curl -L -o /usr/bin/reloader $(curl --silent 'https://api.github.com/repos/altipla-consulting/reloader/releases/latest' | jq -r '.assets[0].browser_download_url') && \
+RUN curl https://tools.altipla.consulting/tools/reloader > /usr/bin/reloader && \
     chmod +x /usr/bin/reloader
 
 COPY gitconfig /home/container/.gitconfig
