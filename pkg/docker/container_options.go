@@ -166,6 +166,12 @@ func WithSharedGopath() ContainerOption {
 			return errors.Trace(err)
 		}
 
+		goenv := fmt.Sprintf("%s/.config/go", config.Home())
+		container.volumes[goenv] = "/home/container/.config/go"
+		if err := os.MkdirAll(goenv, 0777); err != nil {
+			return errors.Trace(err)
+		}
+
 		if os.Getenv("GOBIN") != "" {
 			container.env["GOBIN"] = os.Getenv("GOBIN")
 		}
