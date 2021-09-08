@@ -6,4 +6,6 @@ RUN mkdir /home/container && \
 
 RUN npm install -g npm@latest
 
+ENV HOME /home/container
+
 WORKDIR /workspace
