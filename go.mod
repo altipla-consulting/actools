@@ -1,6 +1,6 @@
 module github.com/altipla-consulting/actools
 
-go 1.14
+go 1.17
 
 require (
 	github.com/altipla-consulting/reloader v0.3.3 // indirect
