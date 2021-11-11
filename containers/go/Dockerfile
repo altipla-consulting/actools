@@ -1,5 +1,5 @@
 
-FROM golang:1.14.7
+FROM golang:1.17.3
 
 RUN apt-get update && \
     apt-get install -y zip unzip jq
