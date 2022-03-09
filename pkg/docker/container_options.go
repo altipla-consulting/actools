@@ -172,6 +172,13 @@ func WithSharedGopath() ContainerOption {
 			return errors.Trace(err)
 		}
 
+		netrc := fmt.Sprintf("%s/.netrc", config.Home())
+		if _, err := os.Stat(netrc); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return errors.Trace(err)
+		} else if err == nil {
+			container.volumes[netrc] = "/home/container/.netrc"
+		}
+
 		if os.Getenv("GOBIN") != "" {
 			container.env["GOBIN"] = os.Getenv("GOBIN")
 		}
