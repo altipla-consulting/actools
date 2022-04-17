@@ -14,7 +14,7 @@ RUN groupadd --gid 1000 -r localgrp -o && \
     useradd --system --uid=1001 --gid=1000 --home-dir /home/container local1001 -o && \
     useradd --system --uid=1010 --gid=1000 --home-dir /home/container local1010 -o
 
-ENV CACHE_BUST 1
+ENV CACHE_BUST 2
 RUN curl -sL https://tools.altipla.consulting/install/reloader | bash
 
 COPY gitconfig /home/container/.gitconfig
