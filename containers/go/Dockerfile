@@ -1,5 +1,5 @@
 
-FROM golang:1.17.3
+FROM golang:1.18
 
 RUN apt-get update && \
     apt-get install -y zip unzip jq
@@ -14,8 +14,7 @@ RUN groupadd --gid 1000 -r localgrp -o && \
     useradd --system --uid=1001 --gid=1000 --home-dir /home/container local1001 -o && \
     useradd --system --uid=1010 --gid=1000 --home-dir /home/container local1010 -o
 
-ENV CACHE_BUST 2
-RUN curl -sL https://tools.altipla.consulting/install/reloader | bash
+RUN go install github.com/altipla-consulting/reloader@v0.2.0
 
 COPY gitconfig /home/container/.gitconfig
 COPY gitconfig /root/.gitconfig
