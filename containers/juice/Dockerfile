@@ -1,5 +1,5 @@
 
-FROM node:12
+FROM node:16
 
 RUN npm install -g juice
 
