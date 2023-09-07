@@ -1,5 +1,5 @@
 
-FROM google/cloud-sdk:220.0.0
+FROM google/cloud-sdk:444.0.0
 
 RUN apt-get update && \
     apt-get install -y wget
