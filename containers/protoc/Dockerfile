@@ -1,5 +1,5 @@
 
-FROM golang:1.17.3
+FROM golang:1.21.4
 
 RUN apt-get update && \
     apt-get install -y unzip build-essential zlib1g-dev autoconf libtool cmake
