@@ -1,6 +1,6 @@
 module github.com/altipla-consulting/actools
 
-go 1.17
+go 1.21
 
 require (
 	github.com/sirupsen/logrus v1.5.0
