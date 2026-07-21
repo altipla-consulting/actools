@@ -1,5 +1,5 @@
 
-FROM node:18
+FROM node:24
 
 RUN mkdir /home/container && \
     chmod 0777 /home/container
